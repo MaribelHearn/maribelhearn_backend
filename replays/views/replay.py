@@ -9,7 +9,7 @@ from ..models import Replay, Category
 
 
 class ScoreViewSet(viewsets.ModelViewSet):
-    queryset = Replay.objects.prefetch_related("shot__game").filter(
+    queryset = Replay.objects.prefetch_related("category__shot__game").filter(
         category__type=Category.CategoryType.score
     )
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -20,7 +20,7 @@ class ScoreViewSet(viewsets.ModelViewSet):
 
 
 class LNNiewSet(viewsets.ModelViewSet):
-    queryset = Replay.objects.prefetch_related("shot__game").filter(
+    queryset = Replay.objects.prefetch_related("category__shot__game").filter(
         category__type=Category.CategoryType.lnn
     )
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]

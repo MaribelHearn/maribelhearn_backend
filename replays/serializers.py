@@ -21,7 +21,7 @@ class CategorySerializer(serializers.ModelSerializer):
     game = serializers.SlugRelatedField(
         slug_field="shot__game__short_name", read_only=True
     )
-    shot = serializers.SlugRelatedField(slug_field="shot__name", read_only=True)
+    shot = serializers.SlugRelatedField(slug_field="name", read_only=True)
 
     class Meta:
         model = Category
