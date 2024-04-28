@@ -1,10 +1,41 @@
 from django.db import models
 
 
+def to_base(num, b):
+    numerals = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    return ((num == 0) and numerals[0]) or (to_base(num // b, b).lstrip(numerals[0]) + numerals[num % b])
+
+
+# convert player name to base 62 integer, return string
+def replay_hash_code(player):
+    player_int = 0
+    for char in player:
+        player_int += ord(char)
+    hash_code = to_base(player_int % 3844, 62)
+    if len(hash_code) == 1:
+        return "0" + hash_code
+    return hash_code
+
+
+# returns 2nd character for the replay code to indicate IN FinalA/B and UFO summon runs
+def route_code(route):
+    match route:
+        case 'FinalA':
+            return 'A'
+        case 'FinalB':
+            return 'B'
+        case 'UFOs':
+            return 'U'
+
+
 def replay_dir(instance, filename):
-        if instance.category.type == "LNN":
-            return f"replays/lnn/{instance.player}/{instance.category.shot.game.code}{instance.category.code}.rpy"
-        return f"replays/{instance.category.shot.game.code}{instance.category.code}.rpy"
+    print(instance)
+    if instance.category.type == "LNN":
+        replay_hash = replay_hash_code(instance.player)
+        if instance.category.route:
+            replay_hash[-1] = route_code(instance.category.route)
+        return f"replays/lnn/{instance.player}/{instance.category.shot.game.code}{replay_hash}{instance.category.code}.rpy"
+    return f"replays/{instance.category.shot.game.code}{instance.category.code}.rpy"
 
 
 class Game(models.Model):
