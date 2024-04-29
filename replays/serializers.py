@@ -18,14 +18,15 @@ class ShotTypeSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    game = serializers.SlugRelatedField(
-        slug_field="shot__game__short_name", read_only=True
-    )
+    game = serializers.SerializerMethodField()
     shot = serializers.SlugRelatedField(slug_field="name", read_only=True)
 
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ["id", "game", "shot", "type", "route", "difficulty", "code"]
+
+    def get_game(self, obj):
+        return obj.shot.game.short_name
 
 
 class ReplaySerializer(serializers.ModelSerializer):
