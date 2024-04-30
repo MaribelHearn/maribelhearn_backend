@@ -3,7 +3,13 @@ from rest_framework import permissions
 from rest_framework import pagination
 
 from django_filters.rest_framework import DjangoFilterBackend
-from django_filters import FilterSet, CharFilter, MultipleChoiceFilter, OrderingFilter
+from django_filters import (
+    FilterSet,
+    CharFilter,
+    ChoiceFilter,
+    MultipleChoiceFilter,
+    OrderingFilter,
+)
 
 from ..serializers import ReplaySerializer
 from ..models import Replay, Category
@@ -20,6 +26,9 @@ class ReplayFilter(FilterSet):
         choices=Category.Difficulty.choices,
         lookup_expr="exact",
     )
+    type = ChoiceFilter(
+        field_name="category__type", choices=Category.CategoryType.choices
+    )
     ordering = OrderingFilter(
         fields=(
             ("category__shot__game__short_name", "game"),
@@ -30,9 +39,7 @@ class ReplayFilter(FilterSet):
 
 
 class ReplayViewSet(viewsets.ModelViewSet):
-    queryset = Replay.objects.prefetch_related("category__shot__game").filter(
-        category__type=Category.CategoryType.score
-    )
+    queryset = Replay.objects.prefetch_related("category__shot__game")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = ReplayFilter
