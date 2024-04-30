@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework import permissions
 from django_filters.rest_framework import DjangoFilterBackend
-from django_filters import FilterSet, CharFilter, OrderingFilter
+from django_filters import FilterSet, CharFilter, MultipleChoiceFilter, OrderingFilter
 
 from ..serializers import CategorySerializer
 from ..models import Category
@@ -10,6 +10,15 @@ from ..models import Category
 class CategoryFilter(FilterSet):
     game = CharFilter(field_name="shot__game__short_name", lookup_expr="exact")
     shot = CharFilter(field_name="shot__name", lookup_expr="exact")
+    difficulty = MultipleChoiceFilter(
+        field_name="difficulty",
+        choices=Category.Difficulty.choices,
+        lookup_expr="exact",
+    )
+    type = MultipleChoiceFilter(
+        field_name="type", choices=Category.CategoryType.choices
+    )
+    route = CharFilter(field_name="route")
 
     ordering = OrderingFilter(
         fields=(
