@@ -1,10 +1,10 @@
 from rest_framework import routers
 
-from .views import category, replay
+from .views import category, replay, game
 
 router = routers.DefaultRouter()
-router.register("score", replay.ScoreViewSet, "score")
-router.register("lnn", replay.LNNiewSet, "lnn")
+router.register("replay", replay.ReplayViewSet, "replay")
 router.register("category", category.CategoryViewSet, "category")
+router.register("game", game.GameViewSet, "game")
 
 urlpatterns = router.urls

@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
-MEDIA_URL = os.environ.get("MEDIA_URL", default='http://localhost/media/')
-MEDIA_ROOT = os.environ.get("MEDIA_ROOT", default='/opt/django-media')
+MEDIA_URL = os.environ.get("MEDIA_URL", default="http://localhost/media/")
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT", default="/opt/django-media")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_KEY", default="django-insecure-9z9em@lg087(4o0t0ei7&!8%+tz)*u#ld)+4t6x=tg@w=@hjaq")
+SECRET_KEY = os.environ.get(
+    "DJANGO_KEY",
+    default="django-insecure-9z9em@lg087(4o0t0ei7&!8%+tz)*u#ld)+4t6x=tg@w=@hjaq",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", default=True)
@@ -45,6 +48,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "rest_framework.authtoken",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -112,7 +116,10 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication"
     ],
-    "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.AdminRenderer",
+    ],
 }
 
 
@@ -142,5 +149,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Docs
 
 SPECTACULAR_SETTINGS = {
-    'SCHEMA_PATH_PREFIX_INSERT': os.environ.get("SCRIPT_NAME", default="/api")
+    "SCHEMA_PATH_PREFIX_INSERT": os.environ.get("SCRIPT_NAME", default="/api")
 }

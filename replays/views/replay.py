@@ -15,7 +15,11 @@ class ReplayFilter(FilterSet):
     )
     shot = CharFilter(field_name="category__shot__name", lookup_expr="exact")
     player = CharFilter(field_name="player", lookup_expr="exact")
-    difficulty = CharFilter(field_name="category__difficulty", lookup_expr="exact")
+    difficulty = MultipleChoiceFilter(
+        field_name="category__difficulty",
+        choices=Category.Difficulty.choices,
+        lookup_expr="exact",
+    )
     ordering = OrderingFilter(
         fields=(
             ("category__shot__game__short_name", "game"),
@@ -25,20 +29,9 @@ class ReplayFilter(FilterSet):
     )
 
 
-class ScoreViewSet(viewsets.ModelViewSet):
+class ReplayViewSet(viewsets.ModelViewSet):
     queryset = Replay.objects.prefetch_related("category__shot__game").filter(
         category__type=Category.CategoryType.score
-    )
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ReplayFilter
-    serializer_class = ReplaySerializer
-    pagination_class = pagination.LimitOffsetPagination
-
-
-class LNNiewSet(viewsets.ModelViewSet):
-    queryset = Replay.objects.prefetch_related("category__shot__game").filter(
-        category__type=Category.CategoryType.lnn
     )
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
