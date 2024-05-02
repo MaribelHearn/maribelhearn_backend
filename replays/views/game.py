@@ -7,7 +7,8 @@ from ..models import Game
 
 
 class GameViewSet(viewsets.ModelViewSet):
-    queryset = Game.objects.all()
+    queryset = Game.objects.prefetch_related("shots__categories__replays")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["short_name"]
     serializer_class = GameSerializer

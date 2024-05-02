@@ -3,10 +3,34 @@ from rest_framework import serializers
 from .models import Game, ShotType, Category, Replay
 
 
+class GameReplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Replay
+        fields = ["date", "submitted_date", "player", "replay", "video"]
+
+
+class GameCategorySerializer(serializers.ModelSerializer):
+    replays = GameReplaySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ["route", "difficulty", "type", "replays"]
+
+
+class GameShotSerializer(serializers.ModelSerializer):
+    categories = GameCategorySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ShotType
+        fields = ["name", "categories"]
+
+
 class GameSerializer(serializers.ModelSerializer):
+    shots = GameShotSerializer(many=True, read_only=True)
+
     class Meta:
         model = Game
-        fields = "__all__"
+        fields = ["full_name", "short_name", "shots"]
 
 
 class ShotTypeSerializer(serializers.ModelSerializer):

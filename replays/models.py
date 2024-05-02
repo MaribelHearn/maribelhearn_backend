@@ -3,7 +3,9 @@ from django.db import models
 
 def to_base(num, b):
     numerals = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    return ((num == 0) and numerals[0]) or (to_base(num // b, b).lstrip(numerals[0]) + numerals[num % b])
+    return ((num == 0) and numerals[0]) or (
+        to_base(num // b, b).lstrip(numerals[0]) + numerals[num % b]
+    )
 
 
 # convert player name to base 62 integer, return string
@@ -20,12 +22,12 @@ def replay_hash_code(player):
 # returns 2nd character for the replay code to indicate IN FinalA/B and UFO summon runs
 def route_code(route):
     match route:
-        case 'FinalA':
-            return 'A'
-        case 'FinalB':
-            return 'B'
-        case 'UFOs':
-            return 'U'
+        case "FinalA":
+            return "A"
+        case "FinalB":
+            return "B"
+        case "UFOs":
+            return "U"
 
 
 def replay_dir(instance, filename):
@@ -49,7 +51,7 @@ class Game(models.Model):
 
 class ShotType(models.Model):
     name = models.CharField(max_length=128)
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="shots")
 
     def __str__(self):
         return f"{self.game} {self.name}"
@@ -69,7 +71,9 @@ class Category(models.Model):
         phantasm = "Phantasm"
 
     type = models.CharField(choices=CategoryType, max_length=32)
-    shot = models.ForeignKey(ShotType, on_delete=models.CASCADE)
+    shot = models.ForeignKey(
+        ShotType, on_delete=models.CASCADE, related_name="categories"
+    )
     route = models.CharField(blank=True, max_length=16)
     difficulty = models.CharField(choices=Difficulty.choices, max_length=32)
     code = models.CharField(blank=True, max_length=16)
@@ -79,7 +83,9 @@ class Category(models.Model):
 
 
 class Replay(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="replays"
+    )
     date = models.DateField()
     submitted_date = models.DateField(auto_now=True)
     player = models.CharField(max_length=128)
