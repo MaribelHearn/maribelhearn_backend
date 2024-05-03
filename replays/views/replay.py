@@ -2,6 +2,16 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import pagination
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from rest_framework.renderers import JSONRenderer
+
+from rest_framework.serializers import ListSerializer
+from rest_framework.serializers import CharField
+
+from drf_spectacular.utils import extend_schema
+
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import (
     FilterSet,
@@ -10,6 +20,8 @@ from django_filters import (
     MultipleChoiceFilter,
     OrderingFilter,
 )
+
+from django.db.models import Count
 
 from ..serializers import ReplaySerializer
 from ..models import Replay, Category
@@ -45,3 +57,18 @@ class ReplayViewSet(viewsets.ModelViewSet):
     filterset_class = ReplayFilter
     serializer_class = ReplaySerializer
     pagination_class = pagination.LimitOffsetPagination
+
+    @extend_schema(responses={200: ListSerializer(child=CharField(read_only=True))})
+    @action(
+        methods=["GET"],
+        detail=False,
+        pagination_class=None,
+        filter_backends=[],
+        serializer_class=ListSerializer(child=CharField(read_only=True)),
+        renderer_classes=[JSONRenderer],
+    )
+    def players(self, request):
+        result = Replay.objects.values_list("player", flat=True).annotate(
+            c=Count("player")
+        )
+        return Response(list(result))
