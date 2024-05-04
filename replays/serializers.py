@@ -30,7 +30,7 @@ class GameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
-        fields = ["full_name", "short_name", "shots"]
+        fields = ["full_name", "short_name", "shots", "number"]
 
 
 class ShotTypeSerializer(serializers.ModelSerializer):

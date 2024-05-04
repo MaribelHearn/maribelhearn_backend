@@ -44,6 +44,7 @@ class Game(models.Model):
     full_name = models.CharField(max_length=128)
     short_name = models.CharField(max_length=16, unique=True)
     code = models.CharField(blank=True, max_length=16)
+    number = models.IntegerField(default=0)
 
     def __str__(self):
         return self.short_name
