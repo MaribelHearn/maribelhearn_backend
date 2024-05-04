@@ -40,7 +40,7 @@ class ReplayFilter(FilterSet):
     )
     ordering = OrderingFilter(
         fields=(
-            ("category__shot__game__short_name", "game"),
+            ("category__shot__game__number", "game"),
             ("category__shot__name", "shot"),
             ("date", "date"),
             ("score", "score"),
