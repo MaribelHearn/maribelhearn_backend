@@ -7,9 +7,6 @@ from rest_framework.response import Response
 
 from rest_framework.renderers import JSONRenderer
 
-from rest_framework.serializers import ListSerializer
-from rest_framework.serializers import CharField
-
 from drf_spectacular.utils import extend_schema
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -23,7 +20,7 @@ from django_filters import (
 
 from django.db.models import Count
 
-from ..serializers import ReplaySerializer
+from ..serializers import ReplaySerializer, PlayersSerializer
 from ..models import Replay, Category
 
 
@@ -59,17 +56,25 @@ class ReplayViewSet(viewsets.ModelViewSet):
     serializer_class = ReplaySerializer
     pagination_class = pagination.LimitOffsetPagination
 
-    @extend_schema(responses={200: ListSerializer(child=CharField(read_only=True))})
+    @extend_schema(responses={200: PlayersSerializer})
     @action(
         methods=["GET"],
         detail=False,
         pagination_class=None,
         filter_backends=[],
-        serializer_class=ListSerializer(child=CharField(read_only=True)),
+        serializer_class=PlayersSerializer,
         renderer_classes=[JSONRenderer],
     )
     def players(self, request):
-        result = Replay.objects.values_list("player", flat=True).annotate(
-            c=Count("player")
+        score = (
+            Replay.objects.values_list("player", flat=True)
+            .annotate(c=Count("player"))
+            .filter(category__type="Score")
         )
-        return Response(list(result))
+        lnn = (
+            Replay.objects.values_list("player", flat=True)
+            .annotate(c=Count("player"))
+            .filter(category__type="LNN")
+        )
+        result = {"score": list(score), "lnn": list(lnn)}
+        return Response(result)

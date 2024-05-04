@@ -59,3 +59,8 @@ class ReplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Replay
         fields = "__all__"
+
+
+class PlayersSerializer(serializers.Serializer):
+    score = serializers.ListSerializer(child=serializers.CharField(read_only=True))
+    lnn = serializers.ListSerializer(child=serializers.CharField(read_only=True))
