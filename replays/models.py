@@ -93,6 +93,7 @@ class Replay(models.Model):
     replay = models.FileField(blank=True, upload_to=replay_dir)
     video = models.URLField(blank=True, max_length=256)
     score = models.BigIntegerField(default=0)
+    verified = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.category} by {self.player} from {self.submitted_date}"

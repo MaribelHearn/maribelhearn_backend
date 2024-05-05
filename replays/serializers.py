@@ -6,7 +6,15 @@ from .models import Game, ShotType, Category, Replay
 class GameReplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Replay
-        fields = ["date", "submitted_date", "player", "replay", "video", "score"]
+        fields = [
+            "date",
+            "submitted_date",
+            "player",
+            "replay",
+            "video",
+            "score",
+            "verified",
+        ]
 
 
 class GameCategorySerializer(serializers.ModelSerializer):

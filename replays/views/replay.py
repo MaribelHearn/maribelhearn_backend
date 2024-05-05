@@ -44,6 +44,7 @@ class ReplayFilter(FilterSet):
             ("category__shot__name", "shot"),
             ("date", "date"),
             ("score", "score"),
+            ("verified", "verified"),
         ),
     )
 
