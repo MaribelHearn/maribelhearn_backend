@@ -1,7 +1,13 @@
 from rest_framework import viewsets
 from rest_framework import permissions
 from django_filters.rest_framework import DjangoFilterBackend
-from django_filters import FilterSet, CharFilter, MultipleChoiceFilter, OrderingFilter
+from django_filters import (
+    FilterSet,
+    CharFilter,
+    MultipleChoiceFilter,
+    OrderingFilter,
+    ChoiceFilter,
+)
 
 from ..serializers import CategorySerializer
 from ..models import Category
@@ -19,11 +25,15 @@ class CategoryFilter(FilterSet):
         field_name="type", choices=Category.CategoryType.choices
     )
     route = CharFilter(field_name="route")
+    region = ChoiceFilter(
+        field_name="category__region", choices=Category.Region.choices
+    )
 
     ordering = OrderingFilter(
         fields=(
             ("shot__game__short_name", "game"),
             ("shot__name", "shot"),
+            ("region", "region"),
         ),
     )
 
