@@ -55,7 +55,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ["id", "game", "shot", "type", "route", "difficulty", "code"]
+        fields = ["id", "game", "shot", "type", "route", "difficulty", "code", "region"]
 
     def get_game(self, obj):
         return obj.shot.game.short_name

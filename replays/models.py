@@ -71,6 +71,10 @@ class Category(models.Model):
         extra = "Extra"
         phantasm = "Phantasm"
 
+    class Region(models.TextChoices):
+        western = "Western"
+        eastern = "Eastern"
+
     type = models.CharField(choices=CategoryType, max_length=32)
     shot = models.ForeignKey(
         ShotType, on_delete=models.CASCADE, related_name="categories"
@@ -78,6 +82,9 @@ class Category(models.Model):
     route = models.CharField(blank=True, max_length=16)
     difficulty = models.CharField(choices=Difficulty.choices, max_length=32)
     code = models.CharField(blank=True, max_length=16)
+    region = models.CharField(
+        max_length=16, choices=Region.choices, default=Region.eastern
+    )
 
     def __str__(self):
         return f"{self.shot} {self.route} {self.difficulty} {self.type}"

@@ -38,10 +38,14 @@ class ReplayFilter(FilterSet):
     type = ChoiceFilter(
         field_name="category__type", choices=Category.CategoryType.choices
     )
+    region = ChoiceFilter(
+        field_name="category__region", choices=Category.Region.choices
+    )
     ordering = OrderingFilter(
         fields=(
             ("category__shot__game__number", "game"),
             ("category__shot__name", "shot"),
+            ("category__region", "region"),
             ("date", "date"),
             ("score", "score"),
             ("verified", "verified"),
