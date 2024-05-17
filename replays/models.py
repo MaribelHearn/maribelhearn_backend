@@ -87,14 +87,14 @@ class Category(models.Model):
     )
 
     def __str__(self):
-        return f"{self.shot} {self.route} {self.difficulty} {self.type}"
+        return f"{"(" + self.region + ") " if self.region == "Western" else ""}{self.shot} {self.route} {self.difficulty} {self.type}"
 
 
 class Replay(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="replays"
     )
-    date = models.DateField(null=True)
+    date = models.DateField(blank=True)
     submitted_date = models.DateField(auto_now=True)
     player = models.CharField(max_length=128)
     replay = models.FileField(blank=True, upload_to=replay_dir)
