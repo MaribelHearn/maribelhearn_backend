@@ -22,7 +22,7 @@ class GameCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ["route", "difficulty", "type", "replays"]
+        fields = ["route", "difficulty", "type", "replays", "region"]
 
 
 class GameShotSerializer(serializers.ModelSerializer):
