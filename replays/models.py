@@ -87,7 +87,7 @@ class Category(models.Model):
     )
 
     def __str__(self):
-        return f"{"(" + self.region + ") " if self.region == "Western" else ""}{self.shot} {self.route} {self.difficulty} {self.type}"
+        return f'{"(" + self.region + ") " if self.region == "Western" else ""}{self.shot} {self.route} {self.difficulty} {self.type}'
 
 
 class Replay(models.Model):
