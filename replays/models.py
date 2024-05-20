@@ -31,7 +31,6 @@ def route_code(route):
 
 
 def replay_dir(instance, filename):
-    print(instance)
     if instance.category.type == "LNN":
         replay_hash = replay_hash_code(instance.player)
         if instance.category.route:
