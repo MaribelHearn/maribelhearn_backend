@@ -34,6 +34,11 @@ DEBUG = os.environ.get("DJANGO_DEBUG", default=True) != 'False'
 
 ALLOWED_HOSTS = ["localhost", "maribelhearn.com"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://maribelhearn.com",
+    "http://localhost:6969",
+    "http://127.0.0.1:6969",
+]
 
 # Application definition
 
@@ -49,9 +54,11 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework.authtoken",
     "django_filters",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
