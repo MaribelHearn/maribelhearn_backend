@@ -12,6 +12,7 @@ from drf_spectacular.utils import extend_schema
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import (
     FilterSet,
+    BooleanFilter,
     CharFilter,
     ChoiceFilter,
     MultipleChoiceFilter,
@@ -41,6 +42,7 @@ class ReplayFilter(FilterSet):
     region = ChoiceFilter(
         field_name="category__region", choices=Category.Region.choices
     )
+    verified = BooleanFilter(field_name="verified", lookup_expr="exact")
     ordering = OrderingFilter(
         fields=(
             ("category__shot__game__number", "game"),
