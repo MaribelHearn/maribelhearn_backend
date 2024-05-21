@@ -34,7 +34,10 @@ def replay_dir(instance, filename):
     if instance.category.type == "LNN":
         replay_hash = replay_hash_code(instance.player)
         if instance.category.route:
-            replay_hash[-1] = route_code(instance.category.route)
+            s = bytearray(replay_hash, 'ascii')
+            s[-1] = ord(route_code(instance.category.route))
+            replay_hash = s.decode('ascii')
+            #replay_hash[-1] = route_code(instance.category.route)
         return f"replays/lnn/{instance.player}/{instance.category.shot.game.code}{replay_hash}{instance.category.code}.rpy"
     return f"replays/{instance.category.shot.game.code}{instance.category.code}.rpy"
 
