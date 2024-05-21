@@ -26,7 +26,7 @@ class CategoryFilter(FilterSet):
     )
     route = CharFilter(field_name="route")
     region = ChoiceFilter(
-        field_name="category__region", choices=Category.Region.choices
+        field_name="region", choices=Category.Region.choices
     )
 
     ordering = OrderingFilter(
