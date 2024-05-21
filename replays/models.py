@@ -105,4 +105,4 @@ class Replay(models.Model):
     verified = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{"(Unverified) " if !self.verified else ""}{self.category} by {self.player} from {self.submitted_date}'
+        return f'{"(Unverified) " if self.verified == False else ""}{self.category} by {self.player} from {self.submitted_date}'
