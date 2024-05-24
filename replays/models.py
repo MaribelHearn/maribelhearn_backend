@@ -121,7 +121,7 @@ def replay_save_handler(sender, instance, created, **kwargs):
         return
     old_path = Path(instance.replay.path)
     new_path = Path(replay_dir(instance, ""))
-    os.rename(old_path, Path(settings.MEDIA_ROOT) / new_path)
+    os.renames(old_path, Path(settings.MEDIA_ROOT) / new_path)
 
     instance.replay.name = str(new_path)
 
