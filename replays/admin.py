@@ -22,4 +22,24 @@ class ShotTypeAdmin(admin.ModelAdmin):
 
 @register(Replay)
 class ReplayAdmin(admin.ModelAdmin):
+    list_select_related = True
+    list_display = [
+        "id",
+        "player",
+        "replay",
+        "video",
+        "score",
+        "submitted_date",
+        "date",
+        "verified",
+        "category",
+    ]
+    autocomplete_fields = ["category"]
+    search_fields = ["player", "category__shot__game__short_name"]
+    list_filter = [
+        ("verified", admin.BooleanFieldListFilter),
+        ("category__type", admin.ChoicesFieldListFilter),
+        ("category__difficulty", admin.ChoicesFieldListFilter),
+        ("category__region", admin.ChoicesFieldListFilter),
+    ]
     exclude = ["id"]
