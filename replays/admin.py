@@ -42,4 +42,13 @@ class ReplayAdmin(admin.ModelAdmin):
         ("category__difficulty", admin.ChoicesFieldListFilter),
         ("category__region", admin.ChoicesFieldListFilter),
     ]
+    list_editable = [
+        "score",
+        "verified",
+        "player",
+        "date",
+        "submitted_date",
+        "video",
+        "category",
+    ]
     exclude = ["id"]
