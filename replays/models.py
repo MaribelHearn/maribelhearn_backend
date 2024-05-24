@@ -1,5 +1,11 @@
 from django.db import models
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.conf import settings
+
+import os
+
 
 def to_base(num, b):
     numerals = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -34,10 +40,10 @@ def replay_dir(instance, filename):
     if instance.category.type == "LNN":
         replay_hash = replay_hash_code(instance.player)
         if instance.category.route:
-            s = bytearray(replay_hash, 'ascii')
+            s = bytearray(replay_hash, "ascii")
             s[-1] = ord(route_code(instance.category.route))
-            replay_hash = s.decode('ascii')
-            #replay_hash[-1] = route_code(instance.category.route)
+            replay_hash = s.decode("ascii")
+            # replay_hash[-1] = route_code(instance.category.route)
         return f"replays/lnn/{instance.player}/{instance.category.shot.game.code}{replay_hash}{instance.category.code}.rpy"
     return f"replays/{instance.category.shot.game.code}{instance.category.code}.rpy"
 
@@ -106,3 +112,18 @@ class Replay(models.Model):
 
     def __str__(self):
         return f'{"(Unverified) " if self.verified == False else ""}{self.category} by {self.player} from {self.submitted_date}'
+
+
+@receiver(post_save, sender=Replay)
+def replay_save_handler(sender, instance, created, **kwargs):
+    if created:
+        return
+    old_path = instance.replay.path
+    new_path = replay_dir(instance, "")
+    os.rename(old_path, settings.MEDIA_ROOT + new_path)
+
+    instance.replay.name = new_path
+
+    post_save.disconnect(replay_save_handler, sender=Replay)
+    instance.save()
+    post_save.connect(replay_save_handler, sender=Replay)
