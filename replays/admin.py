@@ -7,11 +7,13 @@ from .models import Category, Game, ShotType, Replay
 # Register your models here.
 @register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    search_fields = ["game"]
     exclude = ["id"]
 
 
 @register(Game)
 class GameAdmin(admin.ModelAdmin):
+    search_fields = ["short_name"]
     exclude = ["id"]
 
 
@@ -34,8 +36,8 @@ class ReplayAdmin(admin.ModelAdmin):
         "verified",
         "category",
     ]
+    search_fields = ["player", "category"]
     autocomplete_fields = ["category"]
-    search_fields = ["player", "category__shot__game__short_name"]
     list_filter = [
         ("verified", admin.BooleanFieldListFilter),
         ("category__type", admin.ChoicesFieldListFilter),
@@ -47,7 +49,6 @@ class ReplayAdmin(admin.ModelAdmin):
         "verified",
         "player",
         "date",
-        "submitted_date",
         "video",
         "category",
     ]

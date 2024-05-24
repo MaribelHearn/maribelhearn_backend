@@ -25,6 +25,29 @@ from ..serializers import ReplaySerializer, PlayersSerializer
 from ..models import Replay, Category
 
 
+difficulty_order = {
+    Category.Difficulty.easy: 0,
+    Category.Difficulty.normal: 1,
+    Category.Difficulty.hard: 2,
+    Category.Difficulty.lunatic: 3,
+    Category.Difficulty.extra: 4,
+    Category.Difficulty.phantasm: 5,
+}
+
+
+class DifficultyOrderingFilter(OrderingFilter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.extra["choices"] += [
+            ("difficulty", "Difficulty"),
+            ("-difficulty", "Difficulty (descending)"),
+        ]
+
+    def filter(self, qs, value):
+        if any(v in ["difficulty", "-difficulty"] for v in value):
+            return sorted(qs, key=lambda x: difficulty_order[x.category.difficulty])
+
+
 class ReplayFilter(FilterSet):
     game = CharFilter(
         field_name="category__shot__game__short_name", lookup_expr="exact"
@@ -48,7 +71,6 @@ class ReplayFilter(FilterSet):
             ("category__shot__game__number", "game"),
             ("category__shot__name", "shot"),
             ("category__region", "region"),
-            ("category__difficulty", "difficulty"),
             ("date", "date"),
             ("score", "score"),
             ("verified", "verified"),
