@@ -26,16 +26,6 @@ from ..serializers import ReplaySerializer, PlayersSerializer
 from ..models import Replay, Category
 
 
-difficulty_order = {
-    Category.Difficulty.easy: 0,
-    Category.Difficulty.normal: 1,
-    Category.Difficulty.hard: 2,
-    Category.Difficulty.lunatic: 3,
-    Category.Difficulty.extra: 4,
-    Category.Difficulty.phantasm: 5,
-}
-
-
 class DifficultyOrderingFilter(OrderingFilter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
