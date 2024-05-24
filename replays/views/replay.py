@@ -48,6 +48,7 @@ class ReplayFilter(FilterSet):
             ("category__shot__game__number", "game"),
             ("category__shot__name", "shot"),
             ("category__region", "region"),
+            ("category__difficulty", "difficulty"),
             ("date", "date"),
             ("score", "score"),
             ("verified", "verified"),
