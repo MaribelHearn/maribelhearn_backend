@@ -20,6 +20,7 @@ from django_filters import (
 )
 
 from django.db.models import Count
+from django.db.models import Case, When
 
 from ..serializers import ReplaySerializer, PlayersSerializer
 from ..models import Replay, Category
@@ -44,8 +45,21 @@ class DifficultyOrderingFilter(OrderingFilter):
         ]
 
     def filter(self, qs, value):
+        if value is None:
+            return super().filter(qs, value)
         if any(v in ["difficulty", "-difficulty"] for v in value):
-            return sorted(qs, key=lambda x: difficulty_order[x.category.difficulty])
+            diff_values = Category.Difficulty.values
+            preferred = Case(
+                *(
+                    When(category__difficulty=id, then=pos)
+                    for pos, id in enumerate(diff_values, start=1)
+                )
+            )
+            new_qs = qs.order_by(preferred)
+            if "-difficulty" not in value:
+                return new_qs
+            return new_qs.reverse()
+        return super().filter(qs, value)
 
 
 class ReplayFilter(FilterSet):
@@ -66,7 +80,7 @@ class ReplayFilter(FilterSet):
         field_name="category__region", choices=Category.Region.choices
     )
     verified = BooleanFilter(field_name="verified", lookup_expr="exact")
-    ordering = OrderingFilter(
+    ordering = DifficultyOrderingFilter(
         fields=(
             ("category__shot__game__number", "game"),
             ("category__shot__name", "shot"),
