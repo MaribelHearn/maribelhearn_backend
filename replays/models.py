@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.conf import settings
 
 import os
+from pathlib import Path
 
 
 def to_base(num, b):
@@ -118,11 +119,11 @@ class Replay(models.Model):
 def replay_save_handler(sender, instance, created, **kwargs):
     if created:
         return
-    old_path = instance.replay.path
-    new_path = replay_dir(instance, "")
-    os.rename(old_path, settings.MEDIA_ROOT + new_path)
+    old_path = Path(instance.replay.path)
+    new_path = Path(replay_dir(instance, ""))
+    os.rename(old_path, Path(settings.MEDIA_ROOT) / new_path)
 
-    instance.replay.name = new_path
+    instance.replay.name = str(new_path)
 
     post_save.disconnect(replay_save_handler, sender=Replay)
     instance.save()
