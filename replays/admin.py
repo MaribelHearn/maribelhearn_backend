@@ -25,6 +25,13 @@ class ShotTypeAdmin(admin.ModelAdmin):
 
 @register(Replay)
 class ReplayAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        return (
+            super(ReplayAdmin, self)
+            .get_queryset(request)
+            .prefetch_related("category__shot__game")
+        )
+
     list_select_related = True
     list_display = [
         "id",
