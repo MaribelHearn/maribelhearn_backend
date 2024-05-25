@@ -34,22 +34,23 @@ class DifficultyOrderingFilter(OrderingFilter):
             ("-difficulty", "Difficulty (descending)"),
         ]
 
-    def filter(self, qs, value):
-        if value is None:
-            return super().filter(qs, value)
-        if any(v in ["difficulty", "-difficulty"] for v in value):
-            diff_values = Category.Difficulty.values
+    def get_ordering_value(self, param):
+        descending = param.startswith("-")
+        param = param[1:] if descending else param
+        multiplier = -1 if descending else 1
+
+        diff_values = Category.Difficulty.values
+
+        if param == "difficulty":
             preferred = Case(
                 *(
-                    When(category__difficulty=id, then=pos)
+                    When(category__difficulty=id, then=pos * multiplier)
                     for pos, id in enumerate(diff_values, start=1)
                 )
             )
-            new_qs = qs.order_by(preferred)
-            if "-difficulty" not in value:
-                return new_qs
-            return new_qs.reverse()
-        return super().filter(qs, value)
+            return preferred
+        else:
+            return super().get_ordering_value(param)
 
 
 class ReplayFilter(FilterSet):
