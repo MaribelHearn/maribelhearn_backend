@@ -35,6 +35,7 @@ class DifficultyOrderingFilter(OrderingFilter):
         ]
 
     def get_ordering_value(self, param):
+        old_param = param
         descending = param.startswith("-")
         param = param[1:] if descending else param
         multiplier = -1 if descending else 1
@@ -50,7 +51,7 @@ class DifficultyOrderingFilter(OrderingFilter):
             )
             return preferred
         else:
-            return super().get_ordering_value(param)
+            return super().get_ordering_value(old_param)
 
 
 class ReplayFilter(FilterSet):
