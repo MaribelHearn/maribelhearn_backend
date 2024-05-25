@@ -122,7 +122,7 @@ class Replay(models.Model):
 def replay_save_handler(sender, instance, created, **kwargs):
     if created:
         return
-    if instance.replay is None:
+    if instance.replay == "":
         return
     old_path = Path(instance.replay.path)
     new_path = Path(replay_dir(instance, ""))
