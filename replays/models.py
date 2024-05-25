@@ -68,6 +68,9 @@ class ShotType(models.Model):
 
 
 class Category(models.Model):
+    class Meta:
+        verbose_name_plural = "categories"
+
     class CategoryType(models.TextChoices):
         lnn = "LNN"
         score = "Score"
@@ -118,6 +121,8 @@ class Replay(models.Model):
 @receiver(post_save, sender=Replay)
 def replay_save_handler(sender, instance, created, **kwargs):
     if created:
+        return
+    if instance.replay is None:
         return
     old_path = Path(instance.replay.path)
     new_path = Path(replay_dir(instance, ""))
