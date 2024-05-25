@@ -7,14 +7,8 @@ from .models import Category, Game, ShotType, Replay
 # Register your models here.
 @register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    def get_queryset(self, request):
-        return (
-            super(CategoryAdmin, self)
-            .get_queryset(request)
-            .prefetch_related("shot__game")
-        )
-
-    search_fields = ["shot"]
+    list_select_related = ["shot"]
+    search_fields = ["shot__game__short_name", "difficulty", "type", "shot__name"]
     exclude = ["id"]
 
 
@@ -26,23 +20,14 @@ class GameAdmin(admin.ModelAdmin):
 
 @register(ShotType)
 class ShotTypeAdmin(admin.ModelAdmin):
-    def get_queryset(self, request):
-        return super(ShotTypeAdmin, self).get_queryset(request).prefetch_related("game")
-
+    list_select_related = ["game__short_name", "name"]
     search_fields = ["game"]
     exclude = ["id"]
 
 
 @register(Replay)
 class ReplayAdmin(admin.ModelAdmin):
-    def get_queryset(self, request):
-        return (
-            super(ReplayAdmin, self)
-            .get_queryset(request)
-            .prefetch_related("category__shot__game")
-        )
-
-    list_select_related = True
+    # list_select_related = ["category"]
     list_display = [
         "id",
         "player",
@@ -54,6 +39,7 @@ class ReplayAdmin(admin.ModelAdmin):
         "verified",
         "category",
     ]
+    # raw_id_fields = ["category"]
     search_fields = ["player", "category__shot__game__short_name"]
     autocomplete_fields = ["category"]
     list_filter = [
