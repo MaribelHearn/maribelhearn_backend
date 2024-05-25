@@ -7,6 +7,13 @@ from .models import Category, Game, ShotType, Replay
 # Register your models here.
 @register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        return (
+            super(CategoryAdmin, self)
+            .get_queryset(request)
+            .prefetch_related("shot__game")
+        )
+
     search_fields = ["shot"]
     exclude = ["id"]
 
@@ -19,6 +26,9 @@ class GameAdmin(admin.ModelAdmin):
 
 @register(ShotType)
 class ShotTypeAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        return super(ShotTypeAdmin, self).get_queryset(request).prefetch_related("game")
+
     search_fields = ["game"]
     exclude = ["id"]
 
