@@ -7,7 +7,7 @@ from .models import Category, Game, ShotType, Replay
 # Register your models here.
 @register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_select_related = ["shot"]
+    list_select_related = True
     search_fields = ["shot__game__short_name", "difficulty", "type", "shot__name"]
     exclude = ["id"]
 
@@ -20,8 +20,8 @@ class GameAdmin(admin.ModelAdmin):
 
 @register(ShotType)
 class ShotTypeAdmin(admin.ModelAdmin):
-    list_select_related = ["game__short_name", "name"]
-    search_fields = ["game"]
+    list_select_related = True
+    search_fields = ["game__short_name", "name"]
     exclude = ["id"]
 
 

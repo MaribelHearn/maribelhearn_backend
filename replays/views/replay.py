@@ -87,12 +87,11 @@ class ReplayFilter(FilterSet):
 class ReplayViewSet(viewsets.ModelViewSet):
     queryset = Replay.objects.prefetch_related("category__shot__game")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = ReplaySerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ReplayFilter
-    serializer_class = ReplaySerializer
     pagination_class = pagination.LimitOffsetPagination
 
-    @extend_schema(responses={200: PlayersSerializer})
     @action(
         methods=["GET"],
         detail=False,
@@ -100,18 +99,19 @@ class ReplayViewSet(viewsets.ModelViewSet):
         serializer_class=PlayersSerializer,
         renderer_classes=[JSONRenderer],
     )
-    def players(self, request):
+    def players(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
         score = (
-            Replay.objects.values_list("player", flat=True)
+            queryset.values_list("player", flat=True)
             .annotate(c=Count("player"))
             .filter(category__type="Score")
         )
-        score = self.filter_queryset(score)
         lnn = (
-            Replay.objects.values_list("player", flat=True)
+            queryset.values_list("player", flat=True)
             .annotate(c=Count("player"))
             .filter(category__type="LNN")
         )
-        lnn = self.filter_queryset(lnn)
         result = {"score": list(score), "lnn": list(lnn)}
-        return Response(result)
+        serializer = self.get_serializer(result)
+
+        return Response(serializer.data)
