@@ -100,17 +100,19 @@ class ReplayViewSet(viewsets.ModelViewSet):
         renderer_classes=[JSONRenderer],
     )
     def players(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.get_queryset()
         score = (
             queryset.values_list("player", flat=True)
             .annotate(c=Count("player"))
             .filter(category__type="Score")
         )
+        score = self.filter_queryset(score)
         lnn = (
             queryset.values_list("player", flat=True)
             .annotate(c=Count("player"))
             .filter(category__type="LNN")
         )
+        lnn = self.filter_queryset(lnn)
         result = {"score": list(score), "lnn": list(lnn)}
         serializer = self.get_serializer(result)
 
