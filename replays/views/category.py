@@ -9,8 +9,11 @@ from django_filters import (
     ChoiceFilter,
 )
 
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
+
 from ..serializers import CategorySerializer
 from ..models import Category
+from ..cache import ObjectKeyConstructor, ListKeyConstructor
 
 
 class CategoryFilter(FilterSet):
@@ -25,9 +28,7 @@ class CategoryFilter(FilterSet):
         field_name="type", choices=Category.CategoryType.choices
     )
     route = CharFilter(field_name="route")
-    region = ChoiceFilter(
-        field_name="region", choices=Category.Region.choices
-    )
+    region = ChoiceFilter(field_name="region", choices=Category.Region.choices)
 
     ordering = OrderingFilter(
         fields=(
@@ -38,9 +39,11 @@ class CategoryFilter(FilterSet):
     )
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     queryset = Category.objects.prefetch_related("shot__game")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = CategoryFilter
     serializer_class = CategorySerializer
+    object_cache_key_fun = ObjectKeyConstructor()
+    list_cache_key_func = ListKeyConstructor()

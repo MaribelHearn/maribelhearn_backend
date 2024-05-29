@@ -96,7 +96,7 @@ WSGI_APPLICATION = "touhou_replay_database.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": os.environ.get("DB_NAME"),
         "USER": os.environ.get("DB_USER"),
         "PASSWORD": os.environ.get("DB_PASSWORD"),
@@ -133,6 +133,8 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.AdminRenderer",
     ],
+    # "DEFAULT_OBJECT_CACHE_KEY_FUNC": "replays.cache.ObjectKeyConstructor",
+    # "DEFAULT_LIST_CACHE_KEY_FUNC": "replays.cache.ListKeyConstructor",
 }
 
 SILKY_AUTHENTICATION = True  # User must login

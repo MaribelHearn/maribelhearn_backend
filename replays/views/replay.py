@@ -4,10 +4,9 @@ from rest_framework import pagination
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
 from rest_framework.renderers import JSONRenderer
 
-from drf_spectacular.utils import extend_schema
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import (
@@ -24,6 +23,7 @@ from django.db.models import Case, When
 
 from ..serializers import ReplaySerializer, PlayersSerializer
 from ..models import Replay, Category
+from ..cache import ObjectKeyConstructor, ListKeyConstructor
 
 
 class DifficultyOrderingFilter(OrderingFilter):
@@ -84,13 +84,15 @@ class ReplayFilter(FilterSet):
     )
 
 
-class ReplayViewSet(viewsets.ModelViewSet):
+class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     queryset = Replay.objects.prefetch_related("category__shot__game")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = ReplaySerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ReplayFilter
     pagination_class = pagination.LimitOffsetPagination
+    object_cache_key_fun = ObjectKeyConstructor()
+    list_cache_key_func = ListKeyConstructor()
 
     @action(
         methods=["GET"],

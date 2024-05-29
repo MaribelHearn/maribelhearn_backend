@@ -1,12 +1,13 @@
 from django.db import models
 
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.conf import settings
 
-from django.db.models import F
+from django.core.cache import cache
 
 import os
+import datetime
 from pathlib import Path
 
 
@@ -135,3 +136,12 @@ def replay_save_handler(sender, instance, created, **kwargs):
     post_save.disconnect(replay_save_handler, sender=Replay)
     instance.save()
     post_save.connect(replay_save_handler, sender=Replay)
+
+
+def change_api_updated_at(sender=None, instance=None, *args, **kwargs):
+    cache.set("api_updated_at_timestamp", datetime.datetime.utcnow())
+
+
+for model in [Category, Game, ShotType, Replay]:
+    post_save.connect(receiver=change_api_updated_at, sender=model)
+    post_delete.connect(receiver=change_api_updated_at, sender=model)
