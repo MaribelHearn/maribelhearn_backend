@@ -109,7 +109,7 @@ class Replay(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="replays"
     )
-    date = models.DateField(null=True)
+    date = models.DateField(blank=True, null=True)
     submitted_date = models.DateField(auto_now=True)
     player = models.CharField(max_length=128)
     replay = models.FileField(blank=True, upload_to=replay_dir)
