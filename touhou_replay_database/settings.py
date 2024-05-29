@@ -134,6 +134,7 @@ REST_FRAMEWORK = {
 SILKY_AUTHENTICATION = True  # User must login
 SILKY_AUTHORISATION = True  # User must have permissions
 SILKY_PERMISSIONS = lambda user: user.is_staff
+SILKY_MAX_RESPONSE_BODY_SIZE = 1024
 
 
 # Internationalization
