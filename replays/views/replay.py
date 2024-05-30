@@ -55,11 +55,16 @@ class DifficultyOrderingFilter(OrderingFilter):
 
 
 class ReplayFilter(FilterSet):
-    game = CharFilter(
-        field_name="category__shot__game__short_name", lookup_expr="exact"
+    game__contains = CharFilter(
+        field_name="category__shot__game__short_name", lookup_expr="contains"
     )
-    shot = CharFilter(field_name="category__shot__name", lookup_expr="exact")
-    player = CharFilter(field_name="player", lookup_expr="exact")
+    shot__contains = CharFilter(
+        field_name="category__shot__name", lookup_expr="contains"
+    )
+
+    game = CharFilter(field_name="category__shot__game__short_name")
+    shot = CharFilter(field_name="category__shot__name")
+
     difficulty = MultipleChoiceFilter(
         field_name="category__difficulty",
         choices=Category.Difficulty.choices,
@@ -82,6 +87,13 @@ class ReplayFilter(FilterSet):
             ("verified", "verified"),
         ),
     )
+
+    class Meta:
+        model = Replay
+        fields = {
+            "date": ["gt", "lt", "exact", "isnull"],
+            "player": ["contains", "exact"],
+        }
 
 
 class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
