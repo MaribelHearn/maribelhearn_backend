@@ -92,7 +92,7 @@ class ReplayFilter(FilterSet):
         model = Replay
         fields = {
             "date": ["gt", "lt", "exact", "isnull"],
-            "player": ["contains", "exact"],
+            "player": ["exact", "contains"],
         }
 
 
