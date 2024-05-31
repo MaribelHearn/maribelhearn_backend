@@ -63,6 +63,9 @@ class Game(models.Model):
 
 
 class ShotType(models.Model):
+    class Meta:
+        ordering = ["order"]
+
     name = models.CharField(max_length=128)
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="shots")
     order = models.IntegerField(default=0)
