@@ -80,7 +80,7 @@ class ReplayFilter(FilterSet):
     ordering = DifficultyOrderingFilter(
         fields=(
             ("category__shot__game__number", "game"),
-            ("category__shot__name", "shot"),
+            ("category__shot__order", "shot"),
             ("category__region", "region"),
             ("date", "date"),
             ("score", "score"),
