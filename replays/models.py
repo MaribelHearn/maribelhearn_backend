@@ -56,7 +56,7 @@ class Game(models.Model):
     full_name = models.CharField(max_length=128)
     short_name = models.CharField(max_length=16, unique=True)
     code = models.CharField(blank=True, max_length=16)
-    number = models.IntegerField(default=0)
+    number = models.FloatField(default=0)
 
     def __str__(self):
         return self.short_name
@@ -65,6 +65,7 @@ class Game(models.Model):
 class ShotType(models.Model):
     name = models.CharField(max_length=128)
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name="shots")
+    order = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.game} {self.name}"

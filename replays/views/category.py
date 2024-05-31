@@ -33,7 +33,7 @@ class CategoryFilter(FilterSet):
     ordering = OrderingFilter(
         fields=(
             ("shot__game__short_name", "game"),
-            ("shot__name", "shot"),
+            ("shot__order", "shot"),
             ("region", "region"),
         ),
     )
