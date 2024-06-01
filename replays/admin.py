@@ -1,35 +1,16 @@
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 from django.contrib.admin.decorators import register
 
-from django.contrib.admin import ModelAdmin
-
-# from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-# from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
-# from django.contrib.auth.models import User, Group
-
-# from unfold.admin import ModelAdmin
-
 from .models import Category, Game, ShotType, Replay
-
-
-# admin.site.unregister(User)
-# admin.site.unregister(Group)
-#
-#
-# @register(User)
-# class UserAdmin(BaseUserAdmin, ModelAdmin):
-#     pass
-#
-#
-# @register(Group)
-# class GroupAdmin(BaseGroupAdmin, ModelAdmin):
-#     pass
 
 
 @register(Category)
 class CategoryAdmin(ModelAdmin):
     list_select_related = True
     search_fields = ["shot__game__short_name", "difficulty", "type", "shot__name"]
+    list_display = ["id", "type", "difficulty", "shot", "route", "region", "code"]
+    list_filter = ["type", "difficulty", "shot__game", "region"]
     exclude = ["id"]
 
 
@@ -44,6 +25,9 @@ class GameAdmin(ModelAdmin):
 class ShotTypeAdmin(ModelAdmin):
     list_select_related = True
     search_fields = ["game__short_name", "name"]
+    list_display = ["id", "name", "game", "order"]
+    list_editable = ["order", "name"]
+    list_filter = ["game"]
     exclude = ["id"]
 
 
