@@ -52,6 +52,17 @@ def replay_dir(instance, filename):
     return f"replays/{instance.category.shot.game.code}{instance.category.code}.rpy"
 
 
+class Webhook(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    url = models.URLField(max_length=128, unique=True)
+    active = models.BooleanField(default=True)
+    trigger_on_save = models.BooleanField(default=True)
+    trigger_on_delete = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Game(models.Model):
     full_name = models.CharField(max_length=128)
     short_name = models.CharField(max_length=16, unique=True)
@@ -137,9 +148,7 @@ def replay_save_handler(sender, instance, created, **kwargs):
 
     instance.replay.name = str(new_path)
 
-    post_save.disconnect(replay_save_handler, sender=Replay)
-    instance.save()
-    post_save.connect(replay_save_handler, sender=Replay)
+    Replay.objects.bulk_update([instance], ["replay"])
 
 
 def change_api_updated_at(sender=None, instance=None, *args, **kwargs):

@@ -2,7 +2,12 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin.decorators import register
 
-from .models import Category, Game, ShotType, Replay
+from .models import Category, Game, ShotType, Replay, Webhook
+
+
+@register(Webhook)
+class WebhookAdmin(ModelAdmin):
+    list_display = ["name", "url", "active", "trigger_on_save", "trigger_on_delete"]
 
 
 @register(Category)
