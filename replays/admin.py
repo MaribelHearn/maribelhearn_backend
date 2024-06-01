@@ -30,14 +30,14 @@ class ReplayAdmin(admin.ModelAdmin):
     # list_select_related = ["category"]
     list_display = [
         "id",
-        "player",
-        "replay",
-        "video",
+        "category",
         "score",
+        "player",
         "submitted_date",
         "date",
+        "replay",
+        "video",
         "verified",
-        "category",
     ]
     # raw_id_fields = ["category"]
     search_fields = ["player", "category__shot__game__short_name"]
