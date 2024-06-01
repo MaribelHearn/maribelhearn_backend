@@ -1,43 +1,63 @@
 from django.contrib import admin
 from django.contrib.admin.decorators import register
 
+from django.contrib.admin import ModelAdmin
+
+# from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+# from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
+# from django.contrib.auth.models import User, Group
+
+# from unfold.admin import ModelAdmin
+
 from .models import Category, Game, ShotType, Replay
 
 
-# Register your models here.
+# admin.site.unregister(User)
+# admin.site.unregister(Group)
+#
+#
+# @register(User)
+# class UserAdmin(BaseUserAdmin, ModelAdmin):
+#     pass
+#
+#
+# @register(Group)
+# class GroupAdmin(BaseGroupAdmin, ModelAdmin):
+#     pass
+
+
 @register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(ModelAdmin):
     list_select_related = True
     search_fields = ["shot__game__short_name", "difficulty", "type", "shot__name"]
     exclude = ["id"]
 
 
 @register(Game)
-class GameAdmin(admin.ModelAdmin):
+class GameAdmin(ModelAdmin):
     search_fields = ["short_name"]
+    list_display = ["id", "short_name", "full_name", "number"]
     exclude = ["id"]
 
 
 @register(ShotType)
-class ShotTypeAdmin(admin.ModelAdmin):
+class ShotTypeAdmin(ModelAdmin):
     list_select_related = True
     search_fields = ["game__short_name", "name"]
     exclude = ["id"]
 
 
 @register(Replay)
-class ReplayAdmin(admin.ModelAdmin):
+class ReplayAdmin(ModelAdmin):
     # list_select_related = ["category"]
     list_display = [
         "id",
-        "player",
-        "replay",
-        "video",
-        "score",
-        "submitted_date",
-        "date",
-        "verified",
         "category",
+        "player",
+        "score",
+        "date",
+        "video",
+        "verified",
     ]
     # raw_id_fields = ["category"]
     search_fields = ["player", "category__shot__game__short_name"]

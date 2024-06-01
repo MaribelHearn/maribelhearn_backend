@@ -23,6 +23,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
 urlpatterns = [
+    path("grappelli/", include("grappelli.urls")),  # grappelli URLS
     path("admin/", admin.site.urls),
     path("v1/", include("replays.urls")),
     path("v1/schema/", SpectacularAPIView.as_view(), name="schema"),
