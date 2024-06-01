@@ -144,6 +144,8 @@ SILKY_AUTHORISATION = True  # User must have permissions
 SILKY_PERMISSIONS = lambda user: user.is_staff
 SILKY_MAX_RESPONSE_BODY_SIZE = 1024
 
+GRAPPELLI_ADMIN_TITLE = "WR/LNN replay database"
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
