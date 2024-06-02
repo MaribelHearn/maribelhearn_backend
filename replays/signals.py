@@ -30,7 +30,7 @@ def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
             data["Video"] = instance.video
         data["Date"] = str(instance.date)
 
-        if instance.replay is not None:
+        if instance.replay != "":
             name = replay_dir(instance, "")
             url = settings.MEDIA_URL + quote(name)
             data["Replay"] = url
