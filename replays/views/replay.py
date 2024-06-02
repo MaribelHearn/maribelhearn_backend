@@ -85,6 +85,7 @@ class ReplayFilter(FilterSet):
             ("category__region", "region"),
             ("date", "date"),
             ("score", "score"),
+            ("player", "player"),
             ("verified", "verified"),
         ),
     )
