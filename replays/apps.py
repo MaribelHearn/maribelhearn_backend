@@ -6,4 +6,4 @@ class ReplaysConfig(AppConfig):
     name = "replays"
 
     def ready(self):
-        from . import webhooks
+        from . import signals

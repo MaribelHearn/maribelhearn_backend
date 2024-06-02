@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     "silk",
+    "django_q",
 ]
 
 MIDDLEWARE = [
@@ -142,6 +143,23 @@ SILKY_AUTHENTICATION = True  # User must login
 SILKY_AUTHORISATION = True  # User must have permissions
 SILKY_PERMISSIONS = lambda user: user.is_staff
 SILKY_MAX_RESPONSE_BODY_SIZE = 1024
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+    }
+}
+
+Q_CLUSTER = {
+    "name": "DJRedis",
+    "workers": 8,
+    "recycle": 20,
+    "timeout": 30,
+    "retry": 35,
+    "orm": "default",
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

@@ -49,7 +49,12 @@ class ReplayAdmin(ModelAdmin):
         "verified",
     ]
     # raw_id_fields = ["category"]
-    search_fields = ["player", "category__shot__game__short_name"]
+    search_fields = [
+        "player",
+        "category__shot__game__short_name",
+        "category__shot__name",
+        "category__difficulty",
+    ]
     autocomplete_fields = ["category"]
     list_filter = [
         ("verified", admin.BooleanFieldListFilter),
