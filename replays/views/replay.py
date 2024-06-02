@@ -81,6 +81,7 @@ class ReplayFilter(FilterSet):
         fields=(
             ("category__shot__game__number", "game"),
             ("category__shot__order", "shot"),
+            ("category__route", "route"),
             ("category__region", "region"),
             ("date", "date"),
             ("score", "score"),
