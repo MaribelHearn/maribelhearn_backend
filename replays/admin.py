@@ -51,9 +51,8 @@ class ReplayAdmin(ModelAdmin):
     # raw_id_fields = ["category"]
     search_fields = [
         "player",
-        "category__shot__game__short_name",
-        "category__shot__name",
-        "category__difficulty",
+        "category__shot__name__contains",
+        "category__difficulty__exact",
     ]
     autocomplete_fields = ["category"]
     list_filter = [
@@ -61,6 +60,7 @@ class ReplayAdmin(ModelAdmin):
         ("category__type", admin.ChoicesFieldListFilter),
         ("category__difficulty", admin.ChoicesFieldListFilter),
         ("category__region", admin.ChoicesFieldListFilter),
+        ("category__shot__game", admin.RelatedFieldListFilter),
     ]
     list_editable = [
         "score",
@@ -70,4 +70,3 @@ class ReplayAdmin(ModelAdmin):
         "video",
         "category",
     ]
-    exclude = ["id"]
