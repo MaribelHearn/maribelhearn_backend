@@ -107,6 +107,21 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": "db.sqlite3",
+#     }
+# }
+
+
+DJANGO_ADMIN_KUBI = {
+    "ADMIN_HISTORY": True,  # enables the history action panel
+    "ADMIN_SEARCH": True,  # enables a full modal search
+}
+
+# ADMIN_MENU = "replays.admin_menu.MyAdminMenu"
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

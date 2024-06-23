@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.admin import ModelAdmin
+from django.contrib.admin import ModelAdmin, TabularInline, StackedInline
 from django.contrib.admin.decorators import register
 
 from .models import Category, Game, ShotType, Replay, Webhook
@@ -10,6 +10,24 @@ class WebhookAdmin(ModelAdmin):
     list_display = ["name", "url", "active", "trigger_on_save", "trigger_on_delete"]
 
 
+class ReplayInline(TabularInline):
+    model = Replay
+    extra = 0
+    classes = ["collapse"]
+
+
+class ShotInline(TabularInline):
+    model = ShotType
+    extra = 0
+    classes = ["collapse"]
+
+
+class CategoryInline(TabularInline):
+    model = Category
+    extra = 0
+    classes = ["collapse"]
+
+
 @register(Category)
 class CategoryAdmin(ModelAdmin):
     list_select_related = True
@@ -17,6 +35,7 @@ class CategoryAdmin(ModelAdmin):
     list_display = ["id", "type", "difficulty", "shot", "route", "region", "code"]
     list_filter = ["type", "difficulty", "shot__game", "region"]
     exclude = ["id"]
+    inlines = [ReplayInline]
 
 
 @register(Game)
@@ -24,6 +43,7 @@ class GameAdmin(ModelAdmin):
     search_fields = ["short_name"]
     list_display = ["id", "short_name", "full_name", "number"]
     exclude = ["id"]
+    inlines = [ShotInline]
 
 
 @register(ShotType)
@@ -34,6 +54,7 @@ class ShotTypeAdmin(ModelAdmin):
     list_editable = ["order", "name"]
     list_filter = ["game"]
     exclude = ["id"]
+    inlines = [CategoryInline]
 
 
 @register(Replay)
