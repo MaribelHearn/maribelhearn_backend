@@ -49,7 +49,7 @@ def replay_dir(instance, filename):
             replay_hash = s.decode("ascii")
             # replay_hash[-1] = route_code(instance.category.route)
         return f"replays/lnn/{instance.player}/{instance.category.shot.game.code}{replay_hash}{instance.category.code}.rpy"
-    return f"replays/{instance.category.shot.game.code}{instance.category.code}.rpy"
+    return f"replays/{instance.date}/{instance.category.shot.game.code}{instance.category.code}.rpy"
 
 
 class Webhook(models.Model):
@@ -124,7 +124,7 @@ class Replay(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="replays"
     )
-    date = models.DateField(blank=True, null=True)
+    date = models.DateField()
     submitted_date = models.DateField(auto_now=True)
     player = models.CharField(max_length=128)
     replay = models.FileField(blank=True, upload_to=replay_dir)
