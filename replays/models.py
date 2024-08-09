@@ -1,6 +1,7 @@
 from django.db import models
 
 from django.db.models.signals import post_save, post_delete
+from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.conf import settings
 
@@ -124,7 +125,7 @@ class Replay(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="replays"
     )
-    date = models.DateField()
+    date = models.DateField(blank=True,null=True)
     submitted_date = models.DateField(auto_now=True)
     player = models.CharField(max_length=128)
     replay = models.FileField(blank=True, upload_to=replay_dir)
@@ -134,6 +135,10 @@ class Replay(models.Model):
 
     def __str__(self):
         return f'{"(Unverified) " if self.verified == False else ""}{self.category} by {self.player} from {self.submitted_date}'
+
+    def clean(self):
+        if self.category.region == Category.Region.eastern and self.date is None:
+            raise ValidationError("This replay requires a date")
 
 
 @receiver(post_save, sender=Replay)
