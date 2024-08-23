@@ -68,6 +68,7 @@ class ReplayAdmin(ModelAdmin):
         "date",
         "video",
         "verified",
+        "historical",
     ]
     # raw_id_fields = ["category"]
     search_fields = [
@@ -78,6 +79,7 @@ class ReplayAdmin(ModelAdmin):
     autocomplete_fields = ["category"]
     list_filter = [
         ("verified", admin.BooleanFieldListFilter),
+        ("historical", admin.BooleanFieldListFilter),
         ("category__type", admin.ChoicesFieldListFilter),
         ("category__difficulty", admin.ChoicesFieldListFilter),
         ("category__region", admin.ChoicesFieldListFilter),
@@ -86,6 +88,7 @@ class ReplayAdmin(ModelAdmin):
     list_editable = [
         "score",
         "verified",
+        "historical",
         "player",
         "date",
         "video",

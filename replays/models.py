@@ -132,13 +132,25 @@ class Replay(models.Model):
     video = models.URLField(blank=True, max_length=256)
     score = models.BigIntegerField(default=0)
     verified = models.BooleanField(default=True)
+    historical = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{"(Unverified) " if self.verified == False else ""}{self.category} by {self.player} from {self.submitted_date}'
+        prefix = ""
+        if self.historical == True:
+            prefix = "(Historical) "
+        elif self.verified == False:
+            prefix = "(Unverified) "
+        return f'{prefix}{self.category} by {self.player} from {self.submitted_date}'
 
     def clean(self):
         if self.category.region == Category.Region.eastern and self.date is None:
             raise ValidationError("This replay requires a date")
+
+        if self.category.type == "Score":
+            old_scores = Replay.objects.filter(category=self.category, verified=True, historical=False)
+            for score in old_scores:
+                score.historical = True
+            Replay.objects.bulk_update(old_scores, ["historical"])
 
 
 @receiver(post_save, sender=Replay)

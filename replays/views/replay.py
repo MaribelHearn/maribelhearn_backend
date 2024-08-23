@@ -77,6 +77,7 @@ class ReplayFilter(FilterSet):
         field_name="category__region", choices=Category.Region.choices
     )
     verified = BooleanFilter(field_name="verified", lookup_expr="exact")
+    historical = BooleanFilter(field_name="historical", lookup_expr="exact")
     ordering = DifficultyOrderingFilter(
         fields=(
             ("category__shot__game__number", "game"),
@@ -87,6 +88,7 @@ class ReplayFilter(FilterSet):
             ("score", "score"),
             ("player", "player"),
             ("verified", "verified"),
+            ("historical", "historical"),
         ),
     )
 
