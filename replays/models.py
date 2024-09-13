@@ -50,7 +50,8 @@ def replay_dir(instance, filename):
             replay_hash = s.decode("ascii")
             # replay_hash[-1] = route_code(instance.category.route)
         return f"replays/lnn/{instance.player}/{instance.category.shot.game.code}{replay_hash}{instance.category.code}.rpy"
-    return f"replays/{instance.date}/{instance.category.shot.game.code}{instance.category.code}.rpy"
+    path = f"replays/{instance.score}/{instance.category.shot.game.code}{instance.category.code}.rpy"
+    return path
 
 
 class Webhook(models.Model):
@@ -147,7 +148,7 @@ class Replay(models.Model):
             raise ValidationError("This replay requires a date")
 
         if self.category.region == Category.Region.eastern and self.category.type == "Score":
-            old_scores = Replay.objects.filter(category=self.category, verified=True, historical=False, score__lte = self.score)
+            old_scores = Replay.objects.filter(category=self.category, historical=False, score__lte = self.score)
             for score in old_scores:
                 score.historical = True
             Replay.objects.bulk_update(old_scores, ["historical"])
