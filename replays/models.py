@@ -148,7 +148,7 @@ class Replay(models.Model):
             raise ValidationError("This replay requires a date")
 
         if self.category.region == Category.Region.eastern and self.category.type == "Score":
-            old_scores = Replay.objects.filter(category=self.category, historical=False, score__lte = self.score)
+            old_scores = Replay.objects.filter(category=self.category, verified=True, historical=False, score__lte = self.score)
             for score in old_scores:
                 score.historical = True
             Replay.objects.bulk_update(old_scores, ["historical"])
