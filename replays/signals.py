@@ -49,7 +49,12 @@ def send_discord_webhook_delete(sender, instance: Replay, **kwargs):
 
     for webhook in webhooks:
         data = {}
-        data["Category"] = str(instance.category)
+        prefix = ""
+        if instance.historical == True:
+            prefix = "(Historical) "
+        elif instance.verified == False:
+            prefix = "(Unverified) "
+        data["Category"] = prefix + str(instance.category)
         data["Player"] = instance.player
 
         if instance.category.type == Category.CategoryType.score:
