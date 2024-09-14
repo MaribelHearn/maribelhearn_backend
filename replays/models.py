@@ -147,7 +147,7 @@ class Replay(models.Model):
         if self.category.region == Category.Region.eastern and self.date is None:
             raise ValidationError("This replay requires a date")
 
-        if self.category.region == Category.Region.eastern and self.category.type == "Score" and self.verified = True and self.historical == False:
+        if self.category.region == Category.Region.eastern and self.category.type == "Score" and self.verified == True and self.historical == False:
             old_scores = Replay.objects.filter(category=self.category, verified=True, historical=False, score__lte = self.score)
             for score in old_scores:
                 score.historical = True
