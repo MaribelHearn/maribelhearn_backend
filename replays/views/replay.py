@@ -64,6 +64,7 @@ class ReplayFilter(FilterSet):
 
     game = CharFilter(field_name="category__shot__game__short_name")
     shot = CharFilter(field_name="category__shot__name")
+    route = CharFilter(field_name="category__route")
 
     difficulty = MultipleChoiceFilter(
         field_name="category__difficulty",
