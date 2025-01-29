@@ -169,6 +169,14 @@ def replay_save_handler(sender, instance, created, **kwargs):
     Replay.objects.bulk_update([instance], ["replay"])
 
 
+@receiver(post_delete, sender=Replay)
+def replay_delete_handler(sender, instance, **kwargs):
+    if instance.replay == "":
+        return
+    path = Path(instance.replay.path)
+    os.remove(path)
+
+
 def change_api_updated_at(sender=None, instance=None, *args, **kwargs):
     cache.set("api_updated_at_timestamp", datetime.datetime.utcnow())
 
