@@ -1,0 +1,10 @@
+SCRIPT_NAME=/api
+STATIC_ROOT=<YOUR_DIRECTORY_HERE>/maribelhearn.com/static
+STATIC_URL=http://localhost/static/
+MEDIA_ROOT=<YOUR_DIRECTORY_HERE>/maribelhearn.com/media
+MEDIA_URL=http://localhost/media/
+DB_NAME=replays
+DB_USER=
+DB_PASSWORD=
+DJANGO_KEY=
+PYTHONPATH=
