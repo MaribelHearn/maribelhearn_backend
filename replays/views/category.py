@@ -17,6 +17,18 @@ from ..cache import ObjectKeyConstructor, ListKeyConstructor
 
 
 class CategoryFilter(FilterSet):
+    """
+    FilterSet for Category model
+    
+    Filters:
+    - game: Filter by game short name
+    - shot: Filter by shot type name
+    - difficulty: Multi-select difficulty levels
+    - type: Multi-select category types
+    - route: Exact route match
+    - region: Region filter
+    - Custom ordering support
+    """
     game = CharFilter(field_name="shot__game__short_name", lookup_expr="exact")
     shot = CharFilter(field_name="shot__name", lookup_expr="exact")
     difficulty = MultipleChoiceFilter(
@@ -40,6 +52,15 @@ class CategoryFilter(FilterSet):
 
 
 class CategoryViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+    """
+    API endpoint for viewing and managing categories
+    
+    Provides full CRUD operations for Category records with:
+    - Prefetched related game data
+    - Authentication protection for write operations
+    - Advanced filtering and ordering
+    - Caching support
+    """
     queryset = Category.objects.prefetch_related("shot__game")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]

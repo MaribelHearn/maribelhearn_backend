@@ -29,7 +29,16 @@ from ..cache import ObjectKeyConstructor, ListKeyConstructor
 
 
 class DifficultyOrderingFilter(OrderingFilter):
+    """
+    Custom ordering filter that adds difficulty-based sorting.
+    Implements custom sorting logic for Category difficulty levels.
+    
+    Adds two new ordering options:
+    - 'difficulty' - Order by difficulty level (Easy, Normal, Hard, etc.)
+    - '-difficulty' - Reverse difficulty order
+    """
     def __init__(self, *args, **kwargs):
+        """Initialize filter with custom sorting choices for difficulty"""
         super().__init__(*args, **kwargs)
         self.extra["choices"] += [
             ("difficulty", "Difficulty"),
@@ -37,6 +46,15 @@ class DifficultyOrderingFilter(OrderingFilter):
         ]
 
     def get_ordering_value(self, param):
+        """
+        Convert ordering parameter to actual model field ordering
+        
+        Args:
+            param (str): Ordering parameter from query string
+            
+        Returns:
+            Case: Conditional expression for database ordering
+        """
         old_param = param
         descending = param.startswith("-")
         param = param[1:] if descending else param
@@ -57,6 +75,19 @@ class DifficultyOrderingFilter(OrderingFilter):
 
 
 class ReplayFilter(FilterSet):
+    """
+    FilterSet for Replay model with advanced filtering options
+
+    Filters:
+    - game: Filter by game short name
+    - shot: Filter by shot type name
+    - difficulty: Multi-select difficulty level filter
+    - type: Category type filter
+    - region: Region filter
+    - verified: Boolean verified status filter
+    - Custom date range filters
+    - Complex ordering support
+    """
     score__wr = BooleanFilter(
         field_name="score", method="filter_is_wr", label="Score is WR"
     )
@@ -133,6 +164,19 @@ class ReplayFilter(FilterSet):
 
 
 class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+    """
+    API endpoint for viewing and managing replays
+    
+    Provides full CRUD operations for Replay records with:
+    - Prefetched related game data
+    - Authentication protection for write operations
+    - Advanced filtering and ordering
+    - Caching support
+    - Pagination
+    
+    Additional actions:
+    - players: Get unique player lists for different category types
+    """
     queryset = Replay.objects.prefetch_related("category__shot__game")
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = ReplaySerializer
