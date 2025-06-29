@@ -13,9 +13,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 
-MEDIA_URL = os.environ.get("MEDIA_URL", default="http://localhost/media/")
-MEDIA_ROOT = os.environ.get("MEDIA_ROOT", default="/opt/django-media")
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -102,17 +99,10 @@ DATABASES = {
         "NAME": os.environ.get("DB_NAME"),
         "USER": os.environ.get("DB_USER"),
         "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
+        "HOST": os.environ.get("DB_HOST", default="127.0.0.1"),
+        "PORT": os.environ.get("DB_PORT", default="3306"),
     }
 }
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": "db.sqlite3",
-#     }
-# }
 
 
 DJANGO_ADMIN_KUBI = {
@@ -193,6 +183,9 @@ USE_TZ = True
 
 STATIC_URL = os.environ.get("STATIC_URL", default="http://localhost/static/")
 STATIC_ROOT = os.environ.get("STATIC_ROOT", default="/opt/django-static")
+
+MEDIA_URL = os.environ.get("MEDIA_URL", default="http://localhost/media/")
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT", default="/opt/django-media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
