@@ -3,6 +3,7 @@ STATIC_ROOT=<YOUR_DIRECTORY_HERE>/static
 STATIC_URL=http://localhost/static/
 MEDIA_ROOT=<YOUR_DIRECTORY_HERE>/media
 MEDIA_URL=http://localhost/media/
+REDIS_URL=
 DB_NAME=replays
 DB_USER=
 DB_PASSWORD=

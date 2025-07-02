@@ -153,7 +153,7 @@ SILKY_MAX_RESPONSE_BODY_SIZE = 1024
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
+        "LOCATION": os.environ.get("REDIS_URL", default="redis://127.0.0.1:6379"),
     }
 }
 
