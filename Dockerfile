@@ -52,6 +52,9 @@ WORKDIR /app
 # Copy application code
 COPY --chown=appuser:appuser . .
 
+# Override Django admin menu
+COPY ./menu.html /usr/local/lib/python3.10/site-packages/django_admin_kubi/templates/admin/
+
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
