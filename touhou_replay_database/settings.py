@@ -182,10 +182,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = os.environ.get("STATIC_URL", default="http://localhost/static/")
-STATIC_ROOT = os.environ.get("STATIC_ROOT", default="/opt/django-static")
+STATIC_ROOT = os.environ.get("STATIC_ROOT", default="/static")
 
 MEDIA_URL = os.environ.get("MEDIA_URL", default="http://localhost/media/")
-MEDIA_ROOT = os.environ.get("MEDIA_ROOT", default="/opt/django-media")
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT", default="/media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

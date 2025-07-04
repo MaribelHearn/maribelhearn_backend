@@ -33,9 +33,6 @@ RUN pip install -r requirements.txt
 FROM python:3.10.17-slim
 
 RUN <<EOF
-useradd -m -r appuser
-mkdir /app
-chown -R appuser /app
 apt-get -qq update
 apt-get -q -y upgrade
 apt-get install -y libmariadb3
@@ -49,9 +46,6 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 # Set the working directory
 WORKDIR /app
 
-# Copy application code
-COPY --chown=appuser:appuser . .
-
 # Override Django admin menu
 COPY ./menu.html /usr/local/lib/python3.10/site-packages/django_admin_kubi/templates/admin/
 
@@ -59,14 +53,14 @@ COPY ./menu.html /usr/local/lib/python3.10/site-packages/django_admin_kubi/templ
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Switch to non-root user
-USER appuser
+# Setup an app user so the container doesn't run as the root user
+USER 1000
 
 # Expose the application port
 EXPOSE 6969 
 
 # Make entry file executable
-RUN chmod +x entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 # Start the application using Gunicorn
 CMD ["/app/entrypoint.sh"]
