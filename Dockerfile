@@ -57,10 +57,7 @@ ENV PYTHONUNBUFFERED=1
 USER 1000
 
 # Expose the application port
-EXPOSE 6969 
-
-# Make entry file executable
-RUN chmod +x ./entrypoint.sh
+EXPOSE 6969
 
 # Start the application using Gunicorn
 CMD ["/app/entrypoint.sh"]
