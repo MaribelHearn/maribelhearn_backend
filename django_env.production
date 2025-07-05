@@ -1,0 +1,14 @@
+SCRIPT_NAME=/api
+STATIC_ROOT=/app/static
+STATIC_URL=http://maribelhearn.com/static/
+MEDIA_ROOT=/app/media
+MEDIA_URL=https://maribelhearn.com/media/
+REDIS_URL=
+PYTHONPATH=
+DB_NAME=replays
+DB_USER=
+DB_PASSWORD=
+DB_HOST=
+DB_PORT=
+DJANGO_KEY=
+DJANGO_DEBUG=False
