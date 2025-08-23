@@ -14,6 +14,14 @@ from django_q.tasks import async_task
 def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
     webhooks = Webhook.objects.filter(active=True, trigger_on_save=True)
 
+    import inspect
+    for frame_record in inspect.stack():
+        if frame_record[3] == "get_response":
+            request = frame_record[0].f_locals["request"]
+            break
+    else:
+        request = ""
+
     if created:
         title = "Replay created"
     else:
@@ -40,12 +48,25 @@ def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
             url = settings.MEDIA_URL + quote(name)
             data["Replay"] = url
 
+        if request.user != "" and created:
+            data["Created by"] = request.user.username
+        elif request.user != "":
+            data["Updated by"] = request.user.username
+
         async_task(execute_webhook, webhook.url, title, data)
 
 
 @receiver(post_delete, sender=Replay, dispatch_uid="webhooks_signal_delete")
 def send_discord_webhook_delete(sender, instance: Replay, **kwargs):
     webhooks = Webhook.objects.filter(active=True, trigger_on_delete=True)
+
+    import inspect
+    for frame_record in inspect.stack():
+        if frame_record[3] == "get_response":
+            request = frame_record[0].f_locals["request"]
+            break
+    else:
+        request = ""
 
     for webhook in webhooks:
         data = {}
@@ -61,5 +82,8 @@ def send_discord_webhook_delete(sender, instance: Replay, **kwargs):
             data["Score"] = instance.score
 
         data["Date"] = str(instance.date)
+
+        if request.user != "":
+            data["Deleted by"] = request.user.username
 
         async_task(execute_webhook, webhook.url, "Replay deleted", data)
