@@ -37,7 +37,7 @@ def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
         data["Category"] = prefix + str(instance.category)
         data["Player"] = instance.player
         if instance.category.type == Category.CategoryType.score:
-            data["Score"] = instance.score
+            data["Score"] = f"{instance.score:,d}"
 
         if instance.video != "":
             data["Video"] = instance.video
@@ -79,7 +79,7 @@ def send_discord_webhook_delete(sender, instance: Replay, **kwargs):
         data["Player"] = instance.player
 
         if instance.category.type == Category.CategoryType.score:
-            data["Score"] = instance.score
+            data["Score"] = f"{instance.score:,d}"
 
         data["Date"] = str(instance.date)
 
