@@ -4,6 +4,9 @@ from django.contrib.admin.decorators import register
 
 from .models import Category, Game, ShotType, Replay, Webhook
 
+from difflib import SequenceMatcher
+from functools import reduce
+
 
 @register(Webhook)
 class WebhookAdmin(ModelAdmin):
@@ -28,6 +31,30 @@ class CategoryInline(TabularInline):
     classes = ["collapse"]
 
 
+def activation(x):
+    return x ** 2
+
+
+def calculate_rank(category, query):
+    shot_name_matcher = SequenceMatcher(a=category.shot.name, b=query)
+    game_matcher = SequenceMatcher(a=category.shot.game.short_name, b=query)
+    difficulty_matcher = SequenceMatcher(a=category.difficulty, b=query)
+    route_matcher = SequenceMatcher(a=category.route, b=query)
+    type_matcher = SequenceMatcher(a=category.type, b=query)
+
+    shot_name_ratio = shot_name_matcher.ratio()
+    game_ratio = game_matcher.ratio()
+    difficulty_ratio = difficulty_matcher.ratio()
+    route_ratio = route_matcher.ratio()
+    type_ratio = type_matcher.ratio()
+
+    activated = reduce(lambda x, y: x + activation(y), [shot_name_ratio, game_ratio, difficulty_ratio, route_ratio, type_ratio], 0)
+
+    # You can adjust the weighting of shot_name_ratio and code_ratio as needed
+    # For example, if shot_name is more important, give it a higher weight
+    return activated
+
+
 @register(Category)
 class CategoryAdmin(ModelAdmin):
     list_select_related = True
@@ -36,6 +63,10 @@ class CategoryAdmin(ModelAdmin):
     list_filter = ["type", "difficulty", "shot__game", "region"]
     exclude = ["id"]
     inlines = [ReplayInline]
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset = sorted(queryset, key=lambda x: calculate_rank(x, search_term), reverse=True)
+        return queryset, False
 
 
 @register(Game)
