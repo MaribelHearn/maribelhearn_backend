@@ -125,3 +125,9 @@ class ReplayAdmin(ModelAdmin):
         "video",
         "category",
     ]
+
+
+def get_search_results(self, request, queryset, search_term):
+    queryset = queryset.select_related("shot", "shot__game")
+    queryset = sorted(queryset, key=lambda x: calculate_rank(x, search_term), reverse=True)
+    return queryset, False
