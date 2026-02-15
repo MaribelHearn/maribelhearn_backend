@@ -68,7 +68,7 @@ def get_cached_categories():
     data = cache.get(key)
 
     if data is None:
-        data = Category.objects.all().select_related("shot", "shot__game")
+        data = list(Category.objects.all().select_related("shot", "shot__game"))
         cache.set(key, data, 3600)
 
     return data
