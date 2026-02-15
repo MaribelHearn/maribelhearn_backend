@@ -36,11 +36,11 @@ def activation(x):
 
 
 def calculate_rank(category, query):
-    shot_name_matcher = SequenceMatcher(a=category.shot.name, b=query)
-    game_matcher = SequenceMatcher(a=category.shot.game.short_name, b=query)
-    difficulty_matcher = SequenceMatcher(a=category.difficulty, b=query)
-    route_matcher = SequenceMatcher(a=category.route, b=query)
-    type_matcher = SequenceMatcher(a=category.type, b=query)
+    shot_name_matcher = SequenceMatcher(a=category.shot.name.lower(), b=query.lower())
+    game_matcher = SequenceMatcher(a=category.shot.game.short_name.lower(), b=query.lower())
+    difficulty_matcher = SequenceMatcher(a=category.difficulty.lower(), b=query.lower())
+    route_matcher = SequenceMatcher(a=category.route.lower(), b=query.lower())
+    type_matcher = SequenceMatcher(a=category.type.lower(), b=query.lower())
 
     shot_name_ratio = shot_name_matcher.ratio()
     game_ratio = game_matcher.ratio()
@@ -65,6 +65,7 @@ class CategoryAdmin(ModelAdmin):
     inlines = [ReplayInline]
 
     def get_search_results(self, request, queryset, search_term):
+        queryset = queryset.select_related("shot", "shot__game")
         queryset = sorted(queryset, key=lambda x: calculate_rank(x, search_term), reverse=True)
         return queryset, False
 
@@ -125,9 +126,3 @@ class ReplayAdmin(ModelAdmin):
         "video",
         "category",
     ]
-
-
-def get_search_results(self, request, queryset, search_term):
-    queryset = queryset.select_related("shot", "shot__game")
-    queryset = sorted(queryset, key=lambda x: calculate_rank(x, search_term), reverse=True)
-    return queryset, False
