@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin, TabularInline, StackedInline
 from django.contrib.admin.decorators import register
 from django.contrib.admin.widgets import AutocompleteSelect
-from django.core.cache import cache
 
 from .models import Category, Game, ShotType, Replay, Webhook
 
@@ -63,17 +62,6 @@ def calculate_rank(category, query):
     return activated
 
 
-def get_cached_categories():
-    key = "categories_cache"
-    data = cache.get(key)
-
-    if data is None:
-        data = list(Category.objects.all().select_related("shot", "shot__game"))
-        cache.set(key, data, 3600)
-
-    return data
-
-
 class FastAutocompleteSelect(AutocompleteSelect):
     def build_attrs(self, base_attrs, extra_attrs=None):
         attrs = super().build_attrs(base_attrs, extra_attrs)
@@ -91,7 +79,7 @@ class CategoryAdmin(ModelAdmin):
     inlines = [ReplayInline]
 
     def get_search_results(self, request, queryset, search_term):
-        queryset = get_cached_categories()
+        queryset = queryset.select_related("shot", "shot__game")
         queryset = sorted(
             queryset, key=lambda x: calculate_rank(x, search_term), reverse=True
         )
