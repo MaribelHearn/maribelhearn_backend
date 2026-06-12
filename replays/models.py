@@ -177,7 +177,10 @@ def replay_delete_handler(sender, instance, **kwargs):
     if instance.replay == "":
         return
     path = Path(instance.replay.path)
-    os.remove(path)
+    try:
+        os.remove(path)
+    except OSError:
+        pass
 
 
 def change_api_updated_at(sender=None, instance=None, *args, **kwargs):
