@@ -55,6 +55,12 @@ class DifficultyOrderingFilter(OrderingFilter):
 
 
 class ReplayFilter(FilterSet):
+    game__gte = CharFilter(
+        field_name="category__shot__game__number", lookup_expr="gte"
+    )
+    game__lte = CharFilter(
+        field_name="category__shot__game__number", lookup_expr="lte"
+    )
     game__contains = CharFilter(
         field_name="category__shot__game__short_name", lookup_expr="contains"
     )
@@ -98,6 +104,7 @@ class ReplayFilter(FilterSet):
         fields = {
             "date": ["gt", "lt", "exact", "isnull"],
             "player": ["exact", "contains"],
+            "score": ["gte", "lte"],
         }
 
 
