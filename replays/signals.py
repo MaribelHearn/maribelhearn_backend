@@ -22,10 +22,18 @@ def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
     else:
         request = ""
 
-    if created:
-        title = "Replay created"
+    if created and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
+        title = "❗New World Record❗"
     else:
-        title = "Replay updated"
+        if instance.category.type == "Score":
+            title = "Score "
+        else:
+            title = "LNN "
+
+        if created:
+            title += "added"
+        else:
+            title += "updated"
 
     for webhook in webhooks:
         data = {}
