@@ -13,6 +13,7 @@ from django_q.tasks import async_task
 @receiver(post_save, sender=Replay, dispatch_uid="webhooks_signal_save")
 def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
     webhooks = Webhook.objects.filter(active=True, trigger_on_save=True)
+    new_wr = False
 
     import inspect
     for frame_record in inspect.stack():
@@ -22,8 +23,9 @@ def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
     else:
         request = ""
 
-    if created and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
+    if created and instance.category.type == "Score" and instance.verified == True and instance.historical == True:
         title = "❗New World Record❗"
+        new_wr = True
     else:
         if instance.category.type == "Score":
             title = "Score "
@@ -38,7 +40,7 @@ def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
     for webhook in webhooks:
         data = {}
         prefix = ""
-        if instance.historical == True:
+        if not new_wr and instance.historical == True:
             prefix = "(Historical) "
         elif instance.verified == False:
             prefix = "(Unverified) "

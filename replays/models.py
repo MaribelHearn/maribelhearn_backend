@@ -1,6 +1,6 @@
 from django.db import models
 
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.conf import settings
@@ -150,11 +150,17 @@ class Replay(models.Model):
         if self.category.type == "LNN" and Replay.objects.filter(category=self.category, player=self.player).exclude(id=self.id):
             raise ValidationError(f'{self.player} already has {self.category}')
 
-        if self.category.region == Category.Region.eastern and self.category.type == "Score" and self.verified == True and self.historical == False:
-            old_scores = Replay.objects.filter(category=self.category, verified=True, historical=False, score__lt = self.score)
-            for score in old_scores:
-                score.historical = True
-            Replay.objects.bulk_update(old_scores, ["historical"])
+
+# if there are no higher scores, this score is WR, thus set Historical
+@receiver(pre_save, sender=Replay)
+def replay_save_handler(sender, instance, **kwargs):
+    if instance.category.type == "Score" and (instance.replay != "" or instance.video != ""):
+        instance.verified = True
+    if instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
+        higher_scores = Replay.objects.filter(category=instance.category, verified=True, historical=False, score__gt = instance.score)
+        higher_scores = higher_scores.count()
+        if higher_scores == 0:
+            instance.historical = True
 
 
 @receiver(post_save, sender=Replay)
