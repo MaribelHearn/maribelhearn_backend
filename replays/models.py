@@ -148,8 +148,10 @@ class Replay(models.Model):
         return f'{prefix}{self.category} by {self.player} from {self.submitted_date}'
 
     def clean(self):
-        if self.replay != "" and not Path(self.replay.path).is_file():
-            raise ValidationError("Replay not found. Please clear the replay")
+        if self.pk:
+            instance = Replay.objects.get(pk=self.pk)
+            if self.replay != "" and not Path(instance.replay.path).is_file():
+                raise ValidationError("The currently saved replay was not found. Please clear the replay first")
 
         if self.category.region == Category.Region.eastern and self.date is None:
             raise ValidationError("This replay requires a date")
@@ -161,14 +163,12 @@ class Replay(models.Model):
 # if there are no higher scores, this score is WR, thus set Historical
 @receiver(pre_save, sender=Replay)
 def replay_save_handler(sender, instance, **kwargs):
-    if instance.replay != "" and os.path.exists("thrpy-parser/node_modules"):
-        res = subprocess.run(["node", "get_score.js", instance.replay.path], capture_output=True, text=True)
-        if res.stdout.strip().isdigit():
-            instance.score = int(res.stdout)
     if instance.category.type == "Score" and (instance.replay != "" or instance.video != ""):
         instance.verified = True
-    if instance.category.game.short_name == "UDoALG":
+
+    if instance.category.shot.game.short_name == "UDoALG":
         instance.score = 0
+
     if instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
         higher_scores = Replay.objects.filter(category=instance.category, verified=True, score__gt=instance.score)
         higher_scores = higher_scores.count()
@@ -178,10 +178,15 @@ def replay_save_handler(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Replay)
 def replay_save_handler(sender, instance, created, **kwargs):
-    if created:
+    if os.path.exists("thrpy-parser/node_modules"):
+        res = subprocess.run(["node", "get_score.js", instance.replay.path], capture_output=True, text=True)
+        if res.stdout.strip().isdigit():
+            instance.score = int(res.stdout)
+            Replay.objects.bulk_update([instance], ["score"])
+
+    if created or instance.replay == "":
         return
-    if instance.replay == "":
-        return
+
     old_path = Path(instance.replay.path)
     new_path = Path(replay_dir(instance, ""))
     os.renames(old_path, Path(settings.MEDIA_ROOT) / new_path)
