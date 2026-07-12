@@ -167,6 +167,8 @@ def replay_save_handler(sender, instance, **kwargs):
             instance.score = int(res.stdout)
     if instance.category.type == "Score" and (instance.replay != "" or instance.video != ""):
         instance.verified = True
+    if instance.category.game.short_name == "UDoALG":
+        instance.score = 0
     if instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
         higher_scores = Replay.objects.filter(category=instance.category, verified=True, score__gt=instance.score)
         higher_scores = higher_scores.count()
