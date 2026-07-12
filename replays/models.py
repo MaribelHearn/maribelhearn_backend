@@ -150,7 +150,7 @@ class Replay(models.Model):
     def clean(self):
         if self.pk:
             instance = Replay.objects.get(pk=self.pk)
-            if self.replay != "" and not Path(instance.replay.path).is_file():
+            if self.replay != "" and instance.replay != "" and not Path(instance.replay.path).is_file():
                 raise ValidationError("The currently saved replay was not found. Please clear the replay first")
 
         if self.category.region == Category.Region.eastern and self.date is None:
