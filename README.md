@@ -56,6 +56,9 @@ pip install -r requirements.txt
 This will also install `gunicorn` and `qcluster`. Gunicorn is responsible for running the database, while QCluster is used for webhook support.
 Make sure [MariaDB](https://mariadb.org/) and [Redis](https://redis.io/) are running on your system. You may refer to their websites for more information.
 
+To automatically retrieve the score when saving a replay, you need to install [thrpy-parser](https://github.com/hoangcaominh/thrpy-parser).
+Run `npm install` in its directory.
+
 ### Setting up the environment
 Create an environment file called `django_env` based on `django_env.development`. Fill out your PYTHONPATH and your database credentials.
 

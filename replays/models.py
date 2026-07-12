@@ -9,6 +9,7 @@ from django.core.cache import cache
 
 import os
 import datetime
+import subprocess
 from pathlib import Path
 
 
@@ -131,7 +132,10 @@ class Replay(models.Model):
     player = models.CharField(max_length=128)
     replay = models.FileField(blank=True, upload_to=replay_dir)
     video = models.URLField(blank=True, max_length=256)
-    score = models.BigIntegerField(default=0)
+    if os.path.exists("thrpy-parser/node_modules"):
+        score = models.BigIntegerField(default=0, help_text="If a replay file is included, the score will be set automatically.")
+    else:
+        score = models.BigIntegerField(default=0)
     verified = models.BooleanField(default=True)
     historical = models.BooleanField(default=False)
 
@@ -144,6 +148,9 @@ class Replay(models.Model):
         return f'{prefix}{self.category} by {self.player} from {self.submitted_date}'
 
     def clean(self):
+        if self.replay != "" and not Path(self.replay.path).is_file():
+            raise ValidationError("Replay not found. Please clear the replay")
+
         if self.category.region == Category.Region.eastern and self.date is None:
             raise ValidationError("This replay requires a date")
 
@@ -154,10 +161,14 @@ class Replay(models.Model):
 # if there are no higher scores, this score is WR, thus set Historical
 @receiver(pre_save, sender=Replay)
 def replay_save_handler(sender, instance, **kwargs):
+    if instance.replay != "" and os.path.exists("thrpy-parser/node_modules"):
+        res = subprocess.run(["node", "get_score.js", instance.replay.path], capture_output=True, text=True)
+        if res.stdout.strip().isdigit():
+            instance.score = int(res.stdout)
     if instance.category.type == "Score" and (instance.replay != "" or instance.video != ""):
         instance.verified = True
     if instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
-        higher_scores = Replay.objects.filter(category=instance.category, verified=True, historical=False, score__gt = instance.score)
+        higher_scores = Replay.objects.filter(category=instance.category, verified=True, score__gt=instance.score)
         higher_scores = higher_scores.count()
         if higher_scores == 0:
             instance.historical = True

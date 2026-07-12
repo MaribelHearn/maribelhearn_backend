@@ -169,4 +169,7 @@ media/
 static/
 assets/
 
+# Replay parser module
+thrpy-parser/node_modules/
+
 .envrc
