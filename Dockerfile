@@ -6,7 +6,7 @@ USER root
 RUN <<EOF
 apt-get -qq update
 apt-get -q -y upgrade
-apt-get install -y python3-dev default-libmysqlclient-dev build-essential pkg-config nodejs
+apt-get install -y python3-dev default-libmysqlclient-dev build-essential pkg-config
 rm -rf /var/lib/apt/lists/*
 EOF
 
@@ -35,7 +35,7 @@ FROM python:3.10.17-slim
 RUN <<EOF
 apt-get -qq update
 apt-get -q -y upgrade
-apt-get install -y libmariadb3
+apt-get install -y libmariadb3 nodejs
 rm -rf /var/lib/apt/lists/*
 EOF
 
