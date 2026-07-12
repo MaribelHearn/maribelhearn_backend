@@ -6,7 +6,7 @@ USER root
 RUN <<EOF
 apt-get -qq update
 apt-get -q -y upgrade
-apt-get install -y python3-dev default-libmysqlclient-dev build-essential pkg-config
+apt-get install -y python3-dev default-libmysqlclient-dev build-essential pkg-config nodejs
 rm -rf /var/lib/apt/lists/*
 EOF
 
