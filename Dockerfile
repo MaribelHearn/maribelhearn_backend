@@ -47,6 +47,7 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 WORKDIR /app
 
 # Override Django admin menu
+COPY ./change_list.html /usr/local/lib/python3.10/site-packages/django_admin_kubi/templates/admin/import_export/
 COPY ./menu.html /usr/local/lib/python3.10/site-packages/django_admin_kubi/templates/admin/
 
 # Set environment variables to optimize Python
