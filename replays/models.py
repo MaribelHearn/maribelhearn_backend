@@ -178,13 +178,16 @@ def replay_save_handler(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Replay)
 def replay_save_handler(sender, instance, created, **kwargs):
+    if instance.replay == "":
+        return
+
     if os.path.exists("thrpy-parser/node_modules"):
         res = subprocess.run(["node", "get_score.js", instance.replay.path], capture_output=True, text=True)
         if res.stdout.strip().isdigit():
             instance.score = int(res.stdout)
             Replay.objects.bulk_update([instance], ["score"])
 
-    if created or instance.replay == "":
+    if created:
         return
 
     old_path = Path(instance.replay.path)
