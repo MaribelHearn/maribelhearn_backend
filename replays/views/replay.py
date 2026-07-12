@@ -116,14 +116,18 @@ class ReplayFilter(FilterSet):
         wr_ids = {}
 
         for instance in qs.all():
-            if instance.id not in wr_ids.values() or instance.id in wr_ids.values() and instance.score > wrs[instance.category]:
-                wrs[instance.category] = instance.score
-                wr_ids[instance.category] = instance.id
+            if instance.category.type == "LNN" or instance.category.region == "Western" or instance.verified == False or instance.historical == False:
+                continue
+
+            category = str(instance.category)
+            if category not in wr_ids or category in wr_ids and instance.score > wrs[category]:
+                wrs[category] = instance.score
+                wr_ids[category] = instance.pk
 
         if value == False:
-            return qs.exclude(id__in=wr_ids.values())
+            return qs.exclude(pk__in=wr_ids.values())
 
-        return qs.filter(id__in=wr_ids.values())
+        return qs.filter(pk__in=wr_ids.values())
 
 
 class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
@@ -145,12 +149,7 @@ class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     )
     def players(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        score = (
-            queryset.values_list("player", flat=True)
-            .annotate(c=Count("player"))
-            .filter(category__type="Score")
-        )
-        score = self.filter_queryset(score)
+        score = self.filter_has_wr(queryset.filter(category__type="Score", verified=True))
         lnn = (
             queryset.values_list("player", flat=True)
             .annotate(c=Count("player"))
@@ -161,3 +160,18 @@ class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(result)
 
         return Response(serializer.data)
+
+    def filter_has_wr(self, qs):
+        wrs = {}
+        wr_ids = {}
+
+        for instance in qs.all():
+            if instance.category.type == "LNN" or instance.category.region == "Western" or instance.verified == False or instance.historical == False:
+                continue
+
+            category = str(instance.category)
+            if category not in wr_ids or category in wr_ids and instance.score > wrs[category]:
+                wrs[category] = instance.score
+                wr_ids[category] = instance.id
+
+        return qs.filter(id__in=wr_ids.values()).values_list("player", flat=True).annotate(c=Count("player"))
