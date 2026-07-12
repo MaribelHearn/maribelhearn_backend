@@ -55,6 +55,10 @@ class DifficultyOrderingFilter(OrderingFilter):
 
 
 class ReplayFilter(FilterSet):
+    score__wr = BooleanFilter(
+        field_name="score", method="filter_is_wr", label="Score is WR"
+    )
+
     game__gte = CharFilter(
         field_name="category__shot__game__number", lookup_expr="gte"
     )
@@ -104,8 +108,22 @@ class ReplayFilter(FilterSet):
         fields = {
             "date": ["gt", "lt", "exact", "isnull"],
             "player": ["exact", "contains"],
-            "score": ["gte", "lte"],
+            "score": ["gte", "lte", "wr"],
         }
+
+    def filter_is_wr(self, qs, name, value):
+        wrs = {}
+        wr_ids = {}
+
+        for instance in qs.all():
+            if instance.id not in wr_ids.values() or instance.id in wr_ids.values() and instance.score > wrs[instance.category]:
+                wrs[instance.category] = instance.score
+                wr_ids[instance.category] = instance.id
+
+        if value == False:
+            return qs.exclude(id__in=wr_ids.values())
+
+        return qs.filter(id__in=wr_ids.values())
 
 
 class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
