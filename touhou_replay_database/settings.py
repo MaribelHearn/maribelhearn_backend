@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "silk",
     "django_q",
+    "import_export",
 ]
 
 MIDDLEWARE = [

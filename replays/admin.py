@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin, TabularInline, StackedInline
 from django.contrib.admin.decorators import register
 from django.contrib.admin.widgets import AutocompleteSelect
+from import_export.admin import ImportExportModelAdmin
 
 from .models import Category, Game, ShotType, Replay, Webhook
 
@@ -106,7 +107,7 @@ class ShotTypeAdmin(ModelAdmin):
 
 
 @register(Replay)
-class ReplayAdmin(ModelAdmin):
+class ReplayAdmin(ImportExportModelAdmin):
     # list_select_related = ["category"]
     list_display = [
         "id",
