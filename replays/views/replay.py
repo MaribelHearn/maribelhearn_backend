@@ -20,6 +20,8 @@ from django_filters import (
 
 from django.db.models import Count
 from django.db.models import Case, When
+from django.db.models import F, Window
+from django.db.models.functions import RowNumber
 
 from ..serializers import ReplaySerializer, PlayersSerializer
 from ..models import Replay, Category
@@ -112,22 +114,22 @@ class ReplayFilter(FilterSet):
         }
 
     def filter_is_wr(self, qs, name, value):
-        wrs = {}
-        wr_ids = {}
+        ranked = Replay.objects.filter(
+            category__type="Score",
+            verified=True,
+        ).annotate(
+            rn=Window(
+                expression=RowNumber(),
+                partition_by=[F("category_id")],
+                order_by=[F("score").desc(), F("submitted_date").asc()],
+            )
+        )
 
-        for instance in qs.all():
-            if instance.category.type == "LNN" or instance.category.region == "Western" or instance.verified == False or instance.historical == False:
-                continue
+        highscores = Replay.objects.filter(
+            pk__in=ranked.filter(rn=1).values("pk")
+        ).select_related("category", "category__shot")
 
-            category = str(instance.category)
-            if category not in wr_ids or category in wr_ids and instance.score > wrs[category]:
-                wrs[category] = instance.score
-                wr_ids[category] = instance.pk
-
-        if value == False:
-            return qs.exclude(pk__in=wr_ids.values())
-
-        return qs.filter(pk__in=wr_ids.values())
+        return highscores
 
 
 class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
@@ -162,16 +164,19 @@ class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def filter_has_wr(self, qs):
-        wrs = {}
-        wr_ids = {}
+        ranked = Replay.objects.filter(
+            category__type="Score",
+            verified=True,
+        ).annotate(
+            rn=Window(
+                expression=RowNumber(),
+                partition_by=[F("category_id")],
+                order_by=[F("score").desc(), F("submitted_date").asc()],
+            )
+        )
 
-        for instance in qs.all():
-            if instance.category.type == "LNN" or instance.category.region == "Western" or instance.verified == False or instance.historical == False:
-                continue
+        highscores = Replay.objects.filter(
+            pk__in=ranked.filter(rn=1).values("pk")
+        ).select_related("category", "category__shot")
 
-            category = str(instance.category)
-            if category not in wr_ids or category in wr_ids and instance.score > wrs[category]:
-                wrs[category] = instance.score
-                wr_ids[category] = instance.id
-
-        return qs.filter(id__in=wr_ids.values()).values_list("player", flat=True).annotate(c=Count("player"))
+        return highscores.values_list("player", flat=True).annotate(c=Count("player"))

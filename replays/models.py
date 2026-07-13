@@ -159,6 +159,14 @@ class Replay(models.Model):
         if self.category.type == "LNN" and Replay.objects.filter(category=self.category, player=self.player).exclude(id=self.id):
             raise ValidationError(f'{self.player} already has {self.category}')
 
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=["category_id", "-score", "submitted_date"],
+                name="replay_highscore_idx",
+            ),
+        ]
+
 
 # if there are no higher scores, this score is WR, thus set Historical
 @receiver(pre_save, sender=Replay)
