@@ -187,6 +187,13 @@ def replay_save_handler(sender, instance, created, **kwargs):
             instance.score = int(res.stdout)
             Replay.objects.bulk_update([instance], ["score"])
 
+            if instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
+                higher_scores = Replay.objects.filter(category=instance.category, verified=True, score__gt=instance.score)
+                higher_scores = higher_scores.count()
+                if higher_scores == 0:
+                    instance.historical = True
+                    Replay.objects.bulk_update([instance], ["historical"])
+
     if created:
         return
 
