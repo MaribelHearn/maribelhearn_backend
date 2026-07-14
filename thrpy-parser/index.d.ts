@@ -14,6 +14,7 @@ export function parse15(replay: Buffer): object
 export function parse16(replay: Buffer): object
 export function parse17(replay: Buffer): object
 export function parse18(replay: Buffer): object
+export function parse20(replay: Buffer): object
 
 export const CONSTANTS: {
     NO_SPELL_CARD_ID: 0xFFFF,
@@ -74,6 +75,10 @@ export const CONSTANTS: {
         TH18: {
             ID: "th18",
             MAGIC: "t18r"
+        },
+        TH20: {
+            ID: "th20",
+            MAGIC: "t20r"
         },
     },
     DIFFICULTY: {

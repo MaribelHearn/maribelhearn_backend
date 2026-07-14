@@ -26,10 +26,11 @@ const parse15 = PARSERS[C.GAME.TH15.MAGIC] = require("./parse15")
 const parse16 = PARSERS[C.GAME.TH16.MAGIC] = require("./parse16")
 const parse17 = PARSERS[C.GAME.TH17.MAGIC] = require("./parse17")
 const parse18 = PARSERS[C.GAME.TH18.MAGIC] = require("./parse18")
+const parse20 = PARSERS[C.GAME.TH20.MAGIC] = require("./parse20")
 
 /**
  * Parse a Touhou replay file. Supported games are
- * th06, th07, th08, th09, th10, th11, th12, th128, th13, th14, th15, th16, th17, th18
+ * th06, th07, th08, th09, th10, th11, th12, th128, th13, th14, th15, th16, th17, th18, th20
  * @param {*} replay 
  */
 function parse(replay) {
@@ -61,4 +62,5 @@ module.exports = {
     parse16,
     parse17,
     parse18,
+    parse20,
 }

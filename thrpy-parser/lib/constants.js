@@ -58,6 +58,10 @@ module.exports = {
             ID: "th18",
             MAGIC: "t18r"
         },
+        TH20: {
+            ID: "th20",
+            MAGIC: "t20r"
+        },
     },
     DIFFICULTY: {
         EASY: 0,

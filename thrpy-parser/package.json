@@ -1,6 +1,6 @@
 {
   "name": "thrpy-parser",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Parsing utilities for Touhou Project replay files in NodeJS",
   "main": "index.js",
   "types": "index.d.ts",
@@ -20,7 +20,8 @@
   "dependencies": {
     "dayjs": "^1.11.10",
     "kaitai-struct": "^0.10.0",
-    "thrpy-decode": "^0.2.9"
+    "thrpy-decode": "^0.2.9",
+    "thrpy-parser": "github:hoangcaominh/thrpy-parser"
   },
   "devDependencies": {
     "@types/node": "^20.9.0"
