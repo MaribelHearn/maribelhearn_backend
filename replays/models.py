@@ -189,7 +189,7 @@ def replay_save_handler(sender, instance, created, **kwargs):
     if instance.replay == "":
         return
 
-    if os.path.exists("thrpy-parser/node_modules") and (instance.score == "" or intsance.score == 0):
+    if os.path.exists("thrpy-parser/node_modules") and (instance.score == "" or instance.score == 0):
         res = subprocess.run(["node", "get_score.js", instance.replay.path], capture_output=True, text=True)
         if res.stdout.strip().isdigit():
             instance.score = int(res.stdout)
