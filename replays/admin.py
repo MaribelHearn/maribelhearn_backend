@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin, TabularInline, StackedInline
 from django.contrib.admin.decorators import register
 from django.contrib.admin.widgets import AutocompleteSelect
+from django.db.models import Case, When, IntegerField
 from import_export.admin import ImportExportModelAdmin
 
 from .models import Category, Game, ShotType, Replay, Webhook
@@ -84,9 +85,23 @@ class CategoryAdmin(ModelAdmin):
 
     def get_search_results(self, request, queryset, search_term):
         queryset = queryset.select_related("shot", "shot__game")
-        queryset = sorted(
-            queryset, key=lambda x: calculate_rank(x, search_term), reverse=True
+        if not search_term:
+            return queryset, False
+
+        ranked_pks = [
+            obj.pk
+            for obj in sorted(
+                queryset, key=lambda x: calculate_rank(x, search_term), reverse=True
+            )
+        ]
+        if not ranked_pks:
+            return queryset.none(), False
+
+        preserved_order = Case(
+            *[When(pk=pk, then=pos) for pos, pk in enumerate(ranked_pks)],
+            output_field=IntegerField(),
         )
+        queryset = queryset.filter(pk__in=ranked_pks).order_by(preserved_order)
         return queryset, False
 
 
