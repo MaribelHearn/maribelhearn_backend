@@ -10,7 +10,7 @@ async function parseReplay(file) {
 }
 
 parseReplay(process.argv[2]).then(data => {
-	console.log(`{"score": ${data.score}, "date": "${data.date.toISOString().split('T')[0]}"}`);
+	console.log(`{"game": "${data.game}", "difficulty": ${data.difficulty}, "shot": ${data.shot}, "season": ${data.season || 0}, "subshot": ${data.subshot || 0}, "stones": [${data.stones || 0}], "score": ${data.score}, "date": "${data.date.toISOString().split('T')[0]}"}`);
 	exit(0);
 }).catch(err => {
 	console.error(err);

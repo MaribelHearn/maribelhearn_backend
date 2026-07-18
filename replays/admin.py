@@ -38,6 +38,9 @@ def activation(x):
 
 
 def calculate_rank(category, query):
+    # western records are unused except for the dummy category
+    if category.region == Category.Region.western:
+        return 0
     shot_name_matcher = SequenceMatcher(a=category.shot.name.lower(), b=query.lower())
     game_matcher = SequenceMatcher(
         a=category.shot.game.short_name.lower(), b=query.lower()

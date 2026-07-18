@@ -44,6 +44,8 @@ def route_code(route):
 
 
 def replay_dir(instance, filename):
+    if instance.category is None:
+        return f"replays/tmp.rpy"
     if instance.category.type == "LNN":
         replay_hash = replay_hash_code(instance.player)
         if instance.category.route:
@@ -56,7 +58,6 @@ def replay_dir(instance, filename):
     return path
 
 
-'''
 def game_name(num):
     match num:
         case 'th06': return 'EoSD'
@@ -92,7 +93,6 @@ def shot_name(game, data):
         shot_id = data['stones'][0] + shot_id * 8
     shot = ShotType.objects.get(game__short_name=game, order=shot_id)
     return shot.name
-'''
 
 
 class Webhook(models.Model):
@@ -164,14 +164,14 @@ class Category(models.Model):
 
 
 class Replay(models.Model):
-    #if os.path.exists("thrpy-parser/node_modules"):
-    #    category = models.ForeignKey(
-    #        Category, blank=True, on_delete=models.CASCADE, related_name="replays", help_text="If a replay file is included, the category will be set automatically. For LNNs, set this field manually."
-    #    )
-    #else:
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, related_name="replays"
-    )
+    if os.path.exists("thrpy-parser/node_modules"):
+        category = models.ForeignKey(
+            Category, blank=True, null=True, on_delete=models.CASCADE, related_name="replays", help_text="If a replay file is included, the category will be set automatically. For LNNs, set this field manually."
+        )
+    else:
+        category = models.ForeignKey(
+            Category, on_delete=models.CASCADE, related_name="replays"
+        )
     if os.path.exists("thrpy-parser/node_modules"):
         date = models.DateField(blank=True,null=True, help_text="If a replay file is included, the date will be set automatically.")
     else:
@@ -198,16 +198,22 @@ class Replay(models.Model):
     def clean(self):
         if self.pk:
             instance = Replay.objects.get(pk=self.pk)
+            if self.date is None and instance.date is not None:
+                raise ValidationError("Date cannot be removed")
+
+            if self.category is None:
+                raise ValidationError("Category cannot be removed")
+
             if self.replay != "" and instance.replay != "" and not Path(instance.replay.path).is_file():
                 raise ValidationError("The currently saved replay was not found. Please clear the replay first")
+        else:
+            if self.replay == "" and self.date is None and self.category.region == Category.Region.eastern:
+                raise ValidationError("This replay requires a date")
 
-        if self.replay == "" and self.date is None and self.category.region == Category.Region.eastern:
-            raise ValidationError("This replay requires a date")
+        if self.replay == "" and self.category is None:
+            raise ValidationError("This replay requires a category")
 
-        #if self.replay == "" and self.category == "":
-        #    raise ValidationError("This replay requires a category")
-
-        if self.category.type == "LNN" and Replay.objects.filter(category=self.category, player=self.player).exclude(id=self.id):
+        if self.category is not None and self.category.type == "LNN" and Replay.objects.filter(category=self.category, player=self.player).exclude(pk=self.pk):
             raise ValidationError(f'{self.player} already has {self.category}')
 
     class Meta:
@@ -234,6 +240,9 @@ def replay_save_handler(sender, instance, **kwargs):
             higher_scores = higher_scores.count()
             if higher_scores == 0:
                 instance.historical = True
+    # temporary category to be able to save the replay
+    elif instance.category is None:
+        instance.category = Category.objects.get(code='dummy')
 
 
 @receiver(post_save, sender=Replay)
@@ -241,12 +250,10 @@ def replay_save_handler(sender, instance, created, **kwargs):
     if instance.replay == "":
         return
 
-    if instance.category.shot.game.short_name == "UDoALG" and instance.score > 0:
-        instance.score = 0
-        Replay.objects.bulk_update([instance], ["score"])
-    elif os.path.exists("thrpy-parser/node_modules") and (instance.date == "" or instance.score == 0):
+    if os.path.exists("thrpy-parser/node_modules"):
         res = subprocess.run(["node", "get_data.js", instance.replay.path], capture_output=True, text=True)
         replay_data = json.loads(res.stdout)
+        rewrite_rpy = False
 
         if instance.date is None:
             instance.date = replay_data["date"]
@@ -255,19 +262,28 @@ def replay_save_handler(sender, instance, created, **kwargs):
         if instance.score == 0:
             instance.score = int(replay_data["score"])
             Replay.objects.bulk_update([instance], ["score"])
+            rewrite_rpy = True
+
+        # assume score run if temporary category
+        if instance.category == Category.objects.get(code="dummy"):
+            game = game_name(replay_data["game"])
+            diff = difficulty_name(replay_data["difficulty"])
+            shottype = shot_name(game, replay_data)
+            shot = ShotType.objects.get(game__short_name=game, name=shottype)
+            instance.category = Category.objects.get(type="Score", region=Category.Region.eastern, difficulty=diff, shot=shot)
+            Replay.objects.bulk_update([instance], ["category"])
+            rewrite_rpy = True
+
+        if rewrite_rpy:
             old_path = Path(instance.replay.path)
             new_path = Path(replay_dir(instance, ""))
             os.renames(old_path, Path(settings.MEDIA_ROOT) / new_path)
             instance.replay.name = str(new_path)
             Replay.objects.bulk_update([instance], ["replay"])
 
-        # always assume score run if empty category
-        #if instance.category == "":
-        #    game = game_name(replay_data['game'])
-        #    diff = difficulty_name(replay_data['difficulty'])
-        #    shot = shot_name(game, replay_data)
-        #    instance.category = Category.objects.get(game=game, difficulty=diff, shot__name=shot)
-        #    Replay.objects.bulk_update([instance], ["category"])
+    elif instance.category.shot.game.short_name == "UDoALG" and instance.score > 0:
+        instance.score = 0
+        Replay.objects.bulk_update([instance], ["score"])
 
     instance.verified = True
     Replay.objects.bulk_update([instance], ["verified"])
