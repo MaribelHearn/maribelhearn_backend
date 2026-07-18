@@ -23,6 +23,7 @@ function parse20(replay) {
     // Base info
     const info = {
         game: C.GAME.TH20.ID,
+        shot: R.header.shot,
         stones: R.header.stones,
         difficulty: R.header.difficulty,
         score: R.header.score * 10,
