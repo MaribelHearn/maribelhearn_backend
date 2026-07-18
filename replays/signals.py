@@ -23,7 +23,8 @@ def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
     else:
         request = ""
 
-    if created and instance.category.type == "Score" and instance.verified == True and instance.historical == True:
+    wr = Replay.objects.filter(category=instance.category).order_by('-score')[0]
+    if created and instance.category.type == "Score" and instance.score == wr.score and instance.verified == True:
         title = "❗New World Record❗"
         new_wr = True
     else:
