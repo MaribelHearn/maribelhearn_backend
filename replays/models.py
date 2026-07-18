@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.cache import cache
 
 import os
+import re
 import json
 import datetime
 import subprocess
@@ -43,7 +44,9 @@ def route_code(route):
             return "U"
 
 
-def replay_dir(instance, filename):
+def replay_dir(instance, filename, move_check = False):
+    if re.match('/_\d.rpy/', filename):
+        return
     if instance.category is None:
         return f"replays/tmp.rpy"
     if instance.category.type == "LNN":
@@ -53,7 +56,12 @@ def replay_dir(instance, filename):
             s[-1] = ord(route_code(instance.category.route))
             replay_hash = s.decode("ascii")
             # replay_hash[-1] = route_code(instance.category.route)
-        return f"replays/lnn/{instance.player}/{instance.category.shot.game.code}{replay_hash}{instance.category.code}.rpy"
+        path = f"replays/lnn/{instance.player}/{instance.category.shot.game.code}{replay_hash}{instance.category.code}.rpy"
+        rpy_id = 1
+        while (Path(settings.MEDIA_ROOT) /  path).is_file() and move_check == False:
+            path = path.replace(".rpy", "_" + str(rpy_id) + ".rpy")
+            rpy_id += 1
+        return path
     path = f"replays/{instance.score}/{instance.category.shot.game.code}{instance.category.code}.rpy"
     return path
 
@@ -295,13 +303,18 @@ def replay_save_handler(sender, instance, created, **kwargs):
     if created:
         return
 
+    # do not rewrite LNN replay if path remains the same except for the ID
+    move_check = instance.category.type == "LNN"
+
     old_path = Path(instance.replay.path)
-    new_path = Path(replay_dir(instance, ""))
+    new_path_name = Path(replay_dir(instance, "", move_check))
+    new_path = Path(settings.MEDIA_ROOT) / new_path_name
+    pattern = '/' + str(new_path) + '_\d/' 
 
-    if new_path != old_path:
-        os.renames(old_path, Path(settings.MEDIA_ROOT) / new_path)
+    if new_path != old_path and (move_check == False or re.match(pattern, str(old_path)) == False):
+        os.renames(old_path, new_path)
 
-        instance.replay.name = str(new_path)
+        instance.replay.name = str(new_path_name)
 
         Replay.objects.bulk_update([instance], ["replay"])
 
