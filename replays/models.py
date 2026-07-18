@@ -213,9 +213,6 @@ class Replay(models.Model):
         if self.replay == "" and self.category is None:
             raise ValidationError("This replay requires a category")
 
-        if self.category is not None and self.category.type == "LNN" and Replay.objects.filter(category=self.category, player=self.player).exclude(pk=self.pk):
-            raise ValidationError(f'{self.player} already has {self.category}')
-
     class Meta:
         indexes = [
             models.Index(
