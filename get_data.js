@@ -6,11 +6,11 @@ const { parse } = require("./thrpy-parser");
 async function parseReplay(file) {
 	const buffer = await fs.readFile(file);
 	const result = parse(buffer);
-	return result.score;
+	return result;
 }
 
-parseReplay(process.argv[2]).then(score => {
-	console.log(score);
+parseReplay(process.argv[2]).then(data => {
+	console.log(`{"score": ${data.score}, "date": "${data.date.toISOString().split('T')[0]}"}`);
 	exit(0);
 }).catch(err => {
 	console.error(err);

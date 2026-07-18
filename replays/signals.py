@@ -9,15 +9,17 @@ from .tasks import execute_webhook
 
 from django_q.tasks import async_task
 
+import inspect
+
 
 @receiver(post_save, sender=Replay, dispatch_uid="webhooks_signal_save")
 def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
     webhooks = Webhook.objects.filter(active=True, trigger_on_save=True)
     new_wr = False
 
-    import inspect
     for frame_record in inspect.stack():
         if frame_record[3] == "get_response":
+            print(dir(frame_record[0].f_locals["request"]))
             request = frame_record[0].f_locals["request"]
             break
     else:
