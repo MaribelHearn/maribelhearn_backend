@@ -11,6 +11,16 @@ from ..cache import ObjectKeyConstructor, ListKeyConstructor
 
 
 class GameViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+    """
+    API endpoint for viewing and managing games
+    
+    Provides full CRUD operations for Game records with:
+    - Prefetched related shots and categories
+    - Default ordering by game number
+    - Filtering by game short name
+    - Authentication protection for write operations
+    - Caching support
+    """
     queryset = Game.objects.prefetch_related("shots__categories__replays").order_by(
         "number"
     )
