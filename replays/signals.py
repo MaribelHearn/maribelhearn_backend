@@ -19,7 +19,6 @@ def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
 
     for frame_record in inspect.stack():
         if frame_record[3] == "get_response":
-            print(dir(frame_record[0].f_locals["request"]))
             request = frame_record[0].f_locals["request"]
             break
     else:

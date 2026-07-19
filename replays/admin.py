@@ -75,14 +75,14 @@ class FastAutocompleteSelect(AutocompleteSelect):
 
 
 LNN_MAINTAINERS_GROUP = "LNN Maintainers"
-WR_MAINTAINERS_GROUP = "WR Maintainers"
+WR_MAINTAINERS_GROUP = "Score Maintainers"
 
 
 def restrict_queryset_to_maintained_category_type(request, queryset, category_type_lookup):
     """
     Scopes a queryset to the category type a maintainer is responsible for.
 
-    LNN maintainers only see LNN categories/replays, WR maintainers only see
+    LNN maintainers only see LNN categories/replays, Score maintainers only see
     Score ones. Anyone in both groups, neither group, or a superuser sees
     everything (unchanged behavior for existing staff).
     """
@@ -202,3 +202,7 @@ class ReplayAdmin(ImportExportModelAdmin):
         if db_field.name == "category":
             kwargs["widget"] = FastAutocompleteSelect(db_field, self.admin_site)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        obj._current_user = request.user
+        super().save_model(request, obj, form, change)
