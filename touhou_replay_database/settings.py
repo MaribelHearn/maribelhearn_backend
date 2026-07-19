@@ -31,6 +31,8 @@ DEBUG = os.environ.get("DJANGO_DEBUG", default=True) != "False"
 
 ALLOWED_HOSTS = ["localhost", "maribelhearn.com"]
 
+ALLOWED_CIDR_NETS = ['192.168.1.0/24']
+
 CSRF_TRUSTED_ORIGINS = [
     "https://maribelhearn.com",
     "http://localhost:6969",
@@ -59,6 +61,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "allow_cidr.middleware.AllowCIDRMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
