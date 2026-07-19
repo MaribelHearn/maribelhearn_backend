@@ -92,7 +92,10 @@ def difficulty_name(num):
 
 
 def shot_name(game, data):
-    shot_id = data['shot']
+    if game == 'GFW':
+        shot_id = data['route']
+    else:
+        shot_id = int(data['shot'])
     if game == 'HSiFS':
         shot_id = data['season'] + shot_id * 4
     if game == 'WBaWC':
