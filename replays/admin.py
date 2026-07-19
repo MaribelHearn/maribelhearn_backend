@@ -74,6 +74,32 @@ class FastAutocompleteSelect(AutocompleteSelect):
         return attrs
 
 
+LNN_MAINTAINERS_GROUP = "LNN Maintainers"
+WR_MAINTAINERS_GROUP = "Score Maintainers"
+
+
+def restrict_queryset_to_maintained_category_type(request, queryset, category_type_lookup):
+    """
+    Scopes a queryset to the category type a maintainer is responsible for.
+
+    LNN maintainers only see LNN categories/replays, Score maintainers only see
+    Score ones. Anyone in both groups, neither group, or a superuser sees
+    everything (unchanged behavior for existing staff).
+    """
+    if request.user.is_superuser:
+        return queryset
+
+    groups = set(request.user.groups.values_list("name", flat=True))
+    is_lnn_maintainer = LNN_MAINTAINERS_GROUP in groups
+    is_wr_maintainer = WR_MAINTAINERS_GROUP in groups
+
+    if is_lnn_maintainer and not is_wr_maintainer:
+        return queryset.filter(**{category_type_lookup: Category.CategoryType.lnn})
+    if is_wr_maintainer and not is_lnn_maintainer:
+        return queryset.filter(**{category_type_lookup: Category.CategoryType.score})
+    return queryset
+
+
 @register(Category)
 class CategoryAdmin(ModelAdmin):
     list_select_related = True
@@ -82,6 +108,10 @@ class CategoryAdmin(ModelAdmin):
     list_filter = ["type", "difficulty", "shot__game", "region"]
     exclude = ["id"]
     inlines = [ReplayInline]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return restrict_queryset_to_maintained_category_type(request, queryset, "type")
 
     def get_search_results(self, request, queryset, search_term):
         queryset = queryset.select_related("shot", "shot__game")
@@ -162,7 +192,17 @@ class ReplayAdmin(ImportExportModelAdmin):
         "category",
     ]
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return restrict_queryset_to_maintained_category_type(
+            request, queryset, "category__type"
+        )
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "category":
             kwargs["widget"] = FastAutocompleteSelect(db_field, self.admin_site)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        obj._current_user = request.user
+        super().save_model(request, obj, form, change)

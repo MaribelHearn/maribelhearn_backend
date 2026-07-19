@@ -250,6 +250,9 @@ def replay_save_handler(sender, instance, **kwargs):
         instance.category = Category.objects.get(code='dummy')
 
 
+LNN_MAINTAINERS_GROUP = "LNN Maintainers"
+
+
 @receiver(post_save, sender=Replay)
 def replay_save_handler(sender, instance, created, **kwargs):
     if instance.replay == "":
@@ -269,13 +272,16 @@ def replay_save_handler(sender, instance, created, **kwargs):
             Replay.objects.bulk_update([instance], ["score"])
             rewrite_rpy = True
 
-        # assume score run if temporary category
+        # if temporary category, assume LNN for LNN maintainers, otherwise assume Score
         if instance.category == Category.objects.get(code="dummy"):
+            groups = set(instance._current_user.groups.values_list("name", flat=True))
+            is_lnn_maintainer = LNN_MAINTAINERS_GROUP in groups
+            category_type = "LNN" if is_lnn_maintainer else "Score"
             game = game_name(replay_data["game"])
             diff = difficulty_name(replay_data["difficulty"])
             shottype = shot_name(game, replay_data)
             shot = ShotType.objects.get(game__short_name=game, name=shottype)
-            instance.category = Category.objects.get(type="Score", region=Category.Region.eastern, difficulty=diff, shot=shot)
+            instance.category = Category.objects.get(type=category_type, region=Category.Region.eastern, difficulty=diff, shot=shot)
             Replay.objects.bulk_update([instance], ["category"])
             rewrite_rpy = True
 
