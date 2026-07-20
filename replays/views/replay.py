@@ -195,7 +195,12 @@ class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     )
     def players(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        score = self.filter_has_wr(queryset.filter(category__type="Score", verified=True))
+        score = (
+            queryset.values_list("player", flat=True)
+            .annotate(c=Count("player"))
+            .filter(category__type="Score")
+        )
+        score = self.filter_queryset(score)
         lnn = (
             queryset.values_list("player", flat=True)
             .annotate(c=Count("player"))
@@ -206,21 +211,3 @@ class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(result)
 
         return Response(serializer.data)
-
-    def filter_has_wr(self, qs):
-        ranked = Replay.objects.filter(
-            category__type="Score",
-            verified=True,
-        ).annotate(
-            rn=Window(
-                expression=RowNumber(),
-                partition_by=[F("category_id")],
-                order_by=[F("score").desc(), F("submitted_date").asc()],
-            )
-        )
-
-        highscores = Replay.objects.filter(
-            pk__in=ranked.filter(rn=1).values("pk")
-        ).select_related("category", "category__shot")
-
-        return highscores.values_list("player", flat=True).annotate(c=Count("player"))
