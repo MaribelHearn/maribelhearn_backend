@@ -44,7 +44,7 @@ def route_code(route):
             return "U"
 
 
-def replay_dir(instance, filename, move_check = False):
+def replay_dir(instance, filename):
     if re.match('/_\d.rpy/', filename):
         return
     if instance.category is None:
@@ -58,7 +58,9 @@ def replay_dir(instance, filename, move_check = False):
             # replay_hash[-1] = route_code(instance.category.route)
         path = f"replays/lnn/{instance.player}/{instance.category.shot.game.code}{replay_hash}{instance.category.code}.rpy"
         rpy_id = 1
-        while (Path(settings.MEDIA_ROOT) /  path).is_file() and move_check == False:
+        while (Path(settings.MEDIA_ROOT) /  path).is_file():
+            if rpy_id > 1:
+                path = path.replace("_" + str(rpy_id - 1), "")
             path = path.replace(".rpy", "_" + str(rpy_id) + ".rpy")
             rpy_id += 1
         return path
@@ -189,7 +191,7 @@ class Replay(models.Model):
         date = models.DateField(blank=True,null=True)
     submitted_date = models.DateField(auto_now=True)
     player = models.CharField(max_length=128)
-    replay = models.FileField(blank=True, upload_to=replay_dir)
+    replay = models.FileField(blank=True, upload_to="replays/tmp/")
     video = models.URLField(blank=True, max_length=256)
     if os.path.exists("thrpy-parser/node_modules"):
         score = models.BigIntegerField(default=0, help_text="If a replay file is included, the score will be set automatically.")
@@ -217,6 +219,8 @@ class Replay(models.Model):
 
             if self.replay != "" and instance.replay != "" and not Path(instance.replay.path).is_file():
                 raise ValidationError("The currently saved replay was not found. Please clear the replay first")
+            elif instance.replay != "" and self.replay == "":
+                raise ValidationError("Cannot clear the replay without deleting the run itself")
         else:
             if self.replay == "" and self.date is None and self.category.region == Category.Region.eastern:
                 raise ValidationError("This replay requires a date")
@@ -264,7 +268,6 @@ def replay_save_handler(sender, instance, created, **kwargs):
     if os.path.exists("thrpy-parser/node_modules"):
         res = subprocess.run(["node", "get_data.js", instance.replay.path], capture_output=True, text=True)
         replay_data = json.loads(res.stdout)
-        rewrite_rpy = False
 
         if instance.date is None:
             instance.date = replay_data["date"]
@@ -273,7 +276,6 @@ def replay_save_handler(sender, instance, created, **kwargs):
         if instance.score == 0:
             instance.score = int(replay_data["score"])
             Replay.objects.bulk_update([instance], ["score"])
-            rewrite_rpy = True
 
         # if temporary category, assume LNN for LNN maintainers, otherwise assume Score
         if instance.category == Category.objects.get(code="dummy"):
@@ -286,14 +288,6 @@ def replay_save_handler(sender, instance, created, **kwargs):
             shot = ShotType.objects.get(game__short_name=game, name=shottype)
             instance.category = Category.objects.get(type=category_type, region=Category.Region.eastern, difficulty=diff, shot=shot)
             Replay.objects.bulk_update([instance], ["category"])
-            rewrite_rpy = True
-
-        if rewrite_rpy:
-            old_path = Path(instance.replay.path)
-            new_path = Path(replay_dir(instance, ""))
-            os.renames(old_path, Path(settings.MEDIA_ROOT) / new_path)
-            instance.replay.name = str(new_path)
-            Replay.objects.bulk_update([instance], ["replay"])
 
     elif instance.category.shot.game.short_name == "UDoALG" and instance.score > 0:
         instance.score = 0
@@ -308,24 +302,16 @@ def replay_save_handler(sender, instance, created, **kwargs):
         if higher_scores == 0:
             instance.historical = True
             Replay.objects.bulk_update([instance], ["historical"])
+    
+    # move the temporary replay to the correct path
+    old_path = Path(instance.replay.path)
+    new_path = Path(replay_dir(instance, ""))
+    os.renames(old_path, Path(settings.MEDIA_ROOT) / new_path)
+    instance.replay.name = str(new_path)
+    Replay.objects.bulk_update([instance], ["replay"])
 
     if created:
         return
-
-    # do not rewrite LNN replay if path remains the same except for the ID
-    move_check = instance.category.type == "LNN"
-
-    old_path = Path(instance.replay.path)
-    new_path_name = Path(replay_dir(instance, "", move_check))
-    new_path = Path(settings.MEDIA_ROOT) / new_path_name
-    pattern = '/' + str(new_path) + '_\d/' 
-
-    if new_path != old_path and (move_check == False or re.match(pattern, str(old_path)) == False):
-        os.renames(old_path, new_path)
-
-        instance.replay.name = str(new_path_name)
-
-        Replay.objects.bulk_update([instance], ["replay"])
 
 
 @receiver(post_delete, sender=Replay)
