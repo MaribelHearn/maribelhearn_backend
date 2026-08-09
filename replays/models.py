@@ -219,7 +219,7 @@ class Replay(models.Model):
 
             if self.replay != "" and instance.replay != "" and not Path(instance.replay.path).is_file():
                 raise ValidationError("The currently saved replay was not found. Please clear the replay first")
-            elif instance.replay != "" and self.replay == "":
+            elif self.replay == "" and instance.replay != "" and Path(instance.replay.path).is_file():
                 raise ValidationError("Cannot clear the replay without deleting the run itself")
         else:
             if self.replay == "" and self.date is None and self.category.region == Category.Region.eastern:
