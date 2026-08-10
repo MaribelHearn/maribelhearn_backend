@@ -46,7 +46,7 @@ def send_discord_webhook_save(sender, instance: Replay, created, **kwargs):
             prefix = "(Historical) "
         elif instance.verified == False:
             prefix = "(Unverified) "
-        data["Category"] = prefix + str(instance.category)
+        data["Category"] = prefix + str(instance.category).replace("Lunatic LNN", "LNN")
         data["Player"] = instance.player
         if instance.category.type == Category.CategoryType.score:
             data["Score"] = f"{instance.score:,d}"
@@ -87,7 +87,7 @@ def send_discord_webhook_delete(sender, instance: Replay, **kwargs):
             prefix = "(Historical) "
         elif instance.verified == False:
             prefix = "(Unverified) "
-        data["Category"] = prefix + str(instance.category)
+        data["Category"] = prefix + str(instance.category).replace("Lunatic LNN", "LNN")
         data["Player"] = instance.player
 
         if instance.category.type == Category.CategoryType.score:
