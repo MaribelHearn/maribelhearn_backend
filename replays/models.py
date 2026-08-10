@@ -33,7 +33,7 @@ def replay_hash_code(player):
     return hash_code
 
 
-# returns 2nd character for the replay code to indicate IN FinalA/B and UFO summon runs
+# returns 2nd character for the replay code to indicate IN FinalA/B, UFO summon and GFW full gold runs
 def route_code(route):
     match route:
         case "FinalA":
@@ -42,6 +42,8 @@ def route_code(route):
             return "B"
         case "UFOs":
             return "U"
+        case "Gold":
+            return "G"
 
 
 def replay_dir(instance, filename):
@@ -179,7 +181,7 @@ class Category(models.Model):
 class Replay(models.Model):
     if os.path.exists("thrpy-parser/node_modules"):
         category = models.ForeignKey(
-            Category, blank=True, null=True, on_delete=models.CASCADE, related_name="replays", help_text="If a replay file is included, the category will be set automatically. For LNNs, set this field manually."
+            Category, blank=True, null=True, on_delete=models.CASCADE, related_name="replays", help_text="If a replay file is included, the category will be set automatically."
         )
     else:
         category = models.ForeignKey(
