@@ -100,12 +100,19 @@ def shot_name(game, data):
         shot_id = data['route']
     else:
         shot_id = int(data['shot'])
-    if game == 'HSiFS':
-        shot_id = data['season'] + shot_id * 4
-    if game == 'WBaWC':
+
+    if game == 'UFO':
+        shot_id = data['subshot'] + shot_id * 2
+
+    elif game == 'MoF' or game == 'SA' or game == 'WBaWC':
         shot_id = data['subshot'] + shot_id * 3
-    if game == 'FW':
+
+    elif game == 'HSiFS':
+        shot_id = data['season'] + shot_id * 4
+
+    elif game == 'FW':
         shot_id = data['stones'][0] + shot_id * 8
+
     shot = ShotType.objects.get(game__short_name=game, order=shot_id)
     return shot.name
 
