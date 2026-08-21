@@ -101,7 +101,7 @@ def shot_name(game, data):
     else:
         shot_id = int(data['shot'])
 
-    if game == 'UFO':
+    if game == 'UFO' or game == 'DDC':
         shot_id = data['subshot'] + shot_id * 2
 
     elif game == 'MoF' or game == 'SA' or game == 'WBaWC':
