@@ -97,7 +97,7 @@ def difficulty_name(num):
 
 def shot_name(game, data):
     if game == 'GFW':
-        shot_id = data['route']
+        shot_id = int(data['route'])
     else:
         shot_id = int(data['shot'])
 
@@ -115,6 +115,12 @@ def shot_name(game, data):
 
     shot = ShotType.objects.get(game__short_name=game, order=shot_id)
     return shot.name
+
+
+def route_name(game, category_type, data):
+    if game != 'IN' or category_type != 'LNN':
+        return ''
+    return 'FinalA' if data['route'] == 'A' else 'FinalB'
 
 
 class Webhook(models.Model):
@@ -295,7 +301,8 @@ def replay_save_handler(sender, instance, created, **kwargs):
             diff = difficulty_name(replay_data["difficulty"])
             shottype = shot_name(game, replay_data)
             shot = ShotType.objects.get(game__short_name=game, name=shottype)
-            instance.category = Category.objects.get(type=category_type, region=Category.Region.eastern, difficulty=diff, shot=shot)
+            route = route_name(game, category_type, replay_data)
+            instance.category = Category.objects.get(type=category_type, region=Category.Region.eastern, difficulty=diff, shot=shot, route=route)
             Replay.objects.bulk_update([instance], ["category"])
 
     elif instance.category.shot.game.short_name == "UDoALG" and instance.score > 0:
