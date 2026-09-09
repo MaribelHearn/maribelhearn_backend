@@ -5,7 +5,8 @@ const C = require("../constants")
  */
 
 const PARSERS = {}
-const parse06 = PARSERS[C.GAME.TH06.MAGIC] = require("./parse06")
+const parse06 = require("./parse06")
+const parse06or06nc = PARSERS[C.GAME.TH06.MAGIC] = require("./parse06or06nc")
 const parse07 = PARSERS[C.GAME.TH07.MAGIC] = require("./parse07")
 const parse08 = PARSERS[C.GAME.TH08.MAGIC] = require("./parse08")
 const parse09 = PARSERS[C.GAME.TH09.MAGIC] = require("./parse09")

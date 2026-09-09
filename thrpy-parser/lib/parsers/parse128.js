@@ -22,7 +22,7 @@ function parse128(replay) {
     // Base info
     const info = {
         game: C.GAME.TH128.ID,
-        shot: "Cirno",
+        shot: 0,
         difficulty: R.header.difficulty,
         route: R.header.route,
         score: R.header.score * 10,
