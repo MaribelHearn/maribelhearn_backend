@@ -194,7 +194,7 @@ class Category(models.Model):
 class Replay(models.Model):
     if os.path.exists("thrpy-parser/node_modules"):
         category = models.ForeignKey(
-            Category, blank=True, null=True, on_delete=models.CASCADE, related_name="replays", help_text="If a replay file is included, the category will be set automatically."
+            Category, blank=True, null=True, on_delete=models.CASCADE, related_name="replays", help_text="For NEW CLASSIC: please manually set the category!<br>If a replay file is included, the category will be set automatically."
         )
     else:
         category = models.ForeignKey(
@@ -237,7 +237,9 @@ class Replay(models.Model):
             elif self.replay == "" and instance.replay != "" and Path(instance.replay.path).is_file():
                 raise ValidationError("Cannot clear the replay without deleting the run itself")
         else:
-            if self.replay == "" and self.date is None and self.category.region == Category.Region.eastern:
+            if self.score == 0 and self.category.shot.game.short_name == "EoSD-NC":
+                raise ValidationError("New Classic replay: please manually set the score")
+            if (self.replay == "" or self.category.shot.game.short_name == "EoSD-NC") and self.date is None and self.category.region == Category.Region.eastern:
                 raise ValidationError("This replay requires a date")
 
         if self.replay == "" and self.category is None:
@@ -280,7 +282,7 @@ def replay_save_handler(sender, instance, created, **kwargs):
     if instance.replay == "":
         return
 
-    if os.path.exists("thrpy-parser/node_modules"):
+    if os.path.exists("thrpy-parser/node_modules") and instance.category.shot.game.short_name != "EoSD-NC":
         res = subprocess.run(["node", "get_data.js", instance.replay.path], capture_output=True, text=True)
         replay_data = json.loads(res.stdout)
 
