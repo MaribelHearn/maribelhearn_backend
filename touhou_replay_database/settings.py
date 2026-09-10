@@ -29,6 +29,20 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", default=True) != "False"
 
+ADMINS = [("Maribel Hearn", "maribelhearn@disroot.org")]
+
+EMAIL_HOST = os.environ.get("EMAIL_HOST", default="localhost")
+
+EMAIL_PORT = 587
+
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", default="admin")
+
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default="password")
+
+SERVER_EMAIL = os.environ.get("SERVER_EMAIL", default="root@localhost")
+
 ALLOWED_HOSTS = ["localhost", "maribelhearn.com"]
 
 ALLOWED_CIDR_NETS = ['192.168.1.0/24']
