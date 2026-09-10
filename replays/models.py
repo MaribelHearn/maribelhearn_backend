@@ -237,9 +237,9 @@ class Replay(models.Model):
             elif self.replay == "" and instance.replay != "" and Path(instance.replay.path).is_file():
                 raise ValidationError("Cannot clear the replay without deleting the run itself")
         else:
-            if self.score == 0 and self.category.shot.game.short_name == "EoSD-NC":
+            if self.score == 0 and self.category is not None and self.category.shot.game.short_name == "EoSD-NC":
                 raise ValidationError("New Classic replay: please manually set the score")
-            if (self.replay == "" or self.category.shot.game.short_name == "EoSD-NC") and self.date is None and self.category.region == Category.Region.eastern:
+            if (self.replay == "" or self.category is not None and self.category.shot.game.short_name == "EoSD-NC") and self.date is None and self.category.region == Category.Region.eastern:
                 raise ValidationError("This replay requires a date")
 
         if self.replay == "" and self.category is None:
