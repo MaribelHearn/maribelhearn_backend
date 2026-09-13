@@ -282,7 +282,7 @@ def replay_save_handler(sender, instance, created, **kwargs):
     if instance.replay == "":
         return
 
-    if os.path.exists("thrpy-parser/node_modules") and instance.category.shot.game.short_name != "EoSD-NC":
+    if os.path.exists("thrpy-parser/node_modules") and (instance.category is None or instance.category.shot.game.short_name != "EoSD-NC"):
         res = subprocess.run(["node", "get_data.js", instance.replay.path], capture_output=True, text=True)
         replay_data = json.loads(res.stdout)
 
