@@ -261,10 +261,10 @@ def replay_save_handler(sender, instance, **kwargs):
         if instance.video != "":
             instance.verified = True
 
-        if instance.category.shot.game.short_name == "UDoALG":
+        if instance.category is not None and instance.category.shot.game.short_name == "UDoALG":
             instance.score = 0
 
-        if instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
+        if instance.category is not None and instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
             higher_scores = Replay.objects.filter(category=instance.category, verified=True, score__gt=instance.score)
             higher_scores = higher_scores.count()
             if higher_scores == 0:
