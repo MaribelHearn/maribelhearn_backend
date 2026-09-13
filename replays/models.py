@@ -254,6 +254,9 @@ class Replay(models.Model):
         ]
 
 
+LNN_MAINTAINERS_GROUP = "LNN Maintainers"
+
+
 # if there are no higher scores, this score is WR, thus set Historical
 @receiver(pre_save, sender=Replay)
 def replay_save_handler(sender, instance, **kwargs):
@@ -261,20 +264,19 @@ def replay_save_handler(sender, instance, **kwargs):
         if instance.video != "":
             instance.verified = True
 
-        if instance.category is not None and instance.category.shot.game.short_name == "UDoALG":
+        if instance.category.shot.game.short_name == "UDoALG":
             instance.score = 0
 
-        if instance.category is not None and instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
+        if instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
             higher_scores = Replay.objects.filter(category=instance.category, verified=True, score__gt=instance.score)
             higher_scores = higher_scores.count()
             if higher_scores == 0:
                 instance.historical = True
     # temporary category to be able to save the replay
     elif instance.category is None:
-        instance.category = Category.objects.get(code='dummy')
-
-
-LNN_MAINTAINERS_GROUP = "LNN Maintainers"
+        groups = set(instance._current_user.groups.values_list("name", flat=True))
+        is_lnn_maintainer = LNN_MAINTAINERS_GROUP in groups
+        instance.category = Category.objects.get(code="dummy_lnn") if is_lnn_maintainer else Category.objects.get(code="dummy")
 
 
 @receiver(post_save, sender=Replay)
@@ -282,7 +284,7 @@ def replay_save_handler(sender, instance, created, **kwargs):
     if instance.replay == "":
         return
 
-    if os.path.exists("thrpy-parser/node_modules") and (instance.category is None or instance.category.shot.game.short_name != "EoSD-NC"):
+    if os.path.exists("thrpy-parser/node_modules") and instance.category.shot.game.short_name != "EoSD-NC":
         res = subprocess.run(["node", "get_data.js", instance.replay.path], capture_output=True, text=True)
         replay_data = json.loads(res.stdout)
 
@@ -295,7 +297,7 @@ def replay_save_handler(sender, instance, created, **kwargs):
             Replay.objects.bulk_update([instance], ["score"])
 
         # if temporary category, assume LNN for LNN maintainers, otherwise assume Score
-        if instance.category == Category.objects.get(code="dummy"):
+        if instance.category == Category.objects.get(code="dummy") or instance.category == Category.objects.get(code="dummy_lnn"):
             groups = set(instance._current_user.groups.values_list("name", flat=True))
             is_lnn_maintainer = LNN_MAINTAINERS_GROUP in groups
             category_type = "LNN" if is_lnn_maintainer else "Score"
@@ -314,7 +316,7 @@ def replay_save_handler(sender, instance, created, **kwargs):
     instance.verified = True
     Replay.objects.bulk_update([instance], ["verified"])
 
-    if instance.category is not None and instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
+    if instance.category.region == Category.Region.eastern and instance.category.type == "Score" and instance.verified == True and instance.historical == False:
         higher_scores = Replay.objects.filter(category=instance.category, verified=True, score__gt=instance.score)
         higher_scores = higher_scores.count()
         if higher_scores == 0:
