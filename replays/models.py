@@ -273,7 +273,7 @@ def replay_save_handler(sender, instance, **kwargs):
             if higher_scores == 0:
                 instance.historical = True
     # temporary category to be able to save the replay
-    elif instance.category is None:
+    elif instance.category is None or instance.category == "":
         groups = set(instance._current_user.groups.values_list("name", flat=True))
         is_lnn_maintainer = LNN_MAINTAINERS_GROUP in groups
         instance.category = Category.objects.get(code="dummy_lnn") if is_lnn_maintainer else Category.objects.get(code="dummy")
@@ -329,9 +329,6 @@ def replay_save_handler(sender, instance, created, **kwargs):
     os.renames(old_path, Path(settings.MEDIA_ROOT) / new_path)
     instance.replay.name = str(new_path)
     Replay.objects.bulk_update([instance], ["replay"])
-
-    if created:
-        return
 
 
 @receiver(post_delete, sender=Replay)
