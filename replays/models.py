@@ -259,7 +259,7 @@ LNN_MAINTAINERS_GROUP = "LNN Maintainers"
 
 # if there are no higher scores, this score is WR, thus set Historical
 @receiver(pre_save, sender=Replay)
-def replay_save_handler(sender, instance, **kwargs):
+def replay_pre_save_handler(sender, instance, **kwargs):
     if instance.replay == "":
         if instance.video != "":
             instance.verified = True
@@ -280,7 +280,7 @@ def replay_save_handler(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Replay)
-def replay_save_handler(sender, instance, created, **kwargs):
+def replay_post_save_handler(sender, instance, created, **kwargs):
     if instance.replay == "":
         return
 
