@@ -34,11 +34,9 @@ class GameShotSerializer(serializers.ModelSerializer):
 
 
 class GameSerializer(serializers.ModelSerializer):
-    shots = GameShotSerializer(many=True, read_only=True)
-
     class Meta:
         model = Game
-        fields = ["full_name", "short_name", "shots", "number", "release_date"]
+        fields = ["full_name", "short_name", "number", "release_date"]
 
 
 class ShotTypeSerializer(serializers.ModelSerializer):

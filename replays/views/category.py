@@ -30,6 +30,7 @@ class CategoryFilter(FilterSet):
     - Custom ordering support
     """
     game = CharFilter(field_name="shot__game__short_name", lookup_expr="exact")
+    release_date__lte = CharFilter(field_name="shot__game__release_date", lookup_expr="lte")
     shot = CharFilter(field_name="shot__name", lookup_expr="exact")
     difficulty = MultipleChoiceFilter(
         field_name="difficulty",
