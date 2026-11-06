@@ -139,6 +139,7 @@ class Game(models.Model):
     short_name = models.CharField(max_length=16, unique=True)
     code = models.CharField(blank=True, max_length=16)
     number = models.FloatField(default=0)
+    release_date = models.DateField(null=True)
 
     def __str__(self):
         return self.short_name

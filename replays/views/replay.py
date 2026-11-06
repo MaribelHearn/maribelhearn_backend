@@ -139,13 +139,13 @@ class ReplayFilter(FilterSet):
     class Meta:
         model = Replay
         fields = {
-            "date": ["gt", "lt", "exact", "isnull"],
+            "date": ["gt", "lt", "gte", "lte", "exact", "isnull"],
             "player": ["exact", "contains"],
             "score": ["gte", "lte", "wr"],
         }
 
     def filter_is_wr(self, qs, name, value):
-        ranked = Replay.objects.filter(
+        ranked = qs.filter(
             category__type="Score",
             verified=True,
         ).annotate(
@@ -156,7 +156,7 @@ class ReplayFilter(FilterSet):
             )
         )
 
-        highscores = Replay.objects.filter(
+        highscores = qs.filter(
             pk__in=ranked.filter(rn=1).values("pk")
         ).select_related("category", "category__shot")
 
@@ -198,7 +198,7 @@ class ReplayViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         score = (
             queryset.values_list("player", flat=True)
             .annotate(c=Count("player"))
-            .filter(category__type="Score")
+            .filter(category__type="Score", verified=True)
         )
         score = self.filter_queryset(score)
         lnn = (

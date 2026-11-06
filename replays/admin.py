@@ -138,7 +138,7 @@ class CategoryAdmin(ModelAdmin):
 @register(Game)
 class GameAdmin(ModelAdmin):
     search_fields = ["short_name"]
-    list_display = ["id", "short_name", "full_name", "number"]
+    list_display = ["id", "short_name", "full_name", "number", "release_date"]
     exclude = ["id"]
     inlines = [ShotInline]
 
